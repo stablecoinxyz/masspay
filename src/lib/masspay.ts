@@ -257,7 +257,7 @@ async function getPermitSignature(
 
     return signature as Hex;
   } catch (e) {
-    return "0x";
+    return "0xError";
   }
 }
 

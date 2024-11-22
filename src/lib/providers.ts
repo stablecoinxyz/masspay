@@ -9,14 +9,6 @@ export const publicClient = createPublicClient({
   transport: http(CurrentConfig.rpc.base),
 }) as PublicClient;
 
-export enum TransactionState {
-  Failed = "Failed",
-  New = "New",
-  Rejected = "Rejected",
-  Sending = "Sending",
-  Sent = "Sent",
-}
-
 export function getScannerUrl(chainId: number, transactionHash: string) {
   switch (chainId) {
     case polygon.id:
