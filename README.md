@@ -7,6 +7,7 @@ This repo contains a utility allowing users to airdrop an ERC20 token (e.g. SBC)
 To run this project, you will need to add the following environment variables to your .env file:
 
 - `NEXT_PUBLIC_PIMLICO_API_KEY` - get your API key from the [Pimlico dashboard](https://dashboard.pimlico.io/)
+- `NEXT_PUBLIC_SPONSORSHIP_POLICY_ID` - create a policy from the [Pimlico dashboard](https://dashboard.pimlico.io/) and get its ID
 - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - create a project and get its ID from the [WalletConnect dashboard](https://cloud.reown.com/)
 
 ## Run locally
