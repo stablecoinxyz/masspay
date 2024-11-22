@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function Navigation() {
@@ -13,18 +14,14 @@ export function Navigation() {
     <nav className="fixed">
       <ul className="flex space-x-4">
         <li className="m-4 ml-8">
-          <a
-            href="https://swap.stablecoin.xyz"
-            className={getLinkClass("/swap")}
-            target="_blank"
-          >
+          <Link href="https://swap.stablecoin.xyz" target="_blank">
             Swap
-          </a>
+          </Link>
         </li>
         <li className="m-4">
-          <a href="/" className={getLinkClass("/")}>
+          <Link href="/" className="font-bold">
             MassPay
-          </a>
+          </Link>
         </li>
       </ul>
     </nav>

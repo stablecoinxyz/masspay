@@ -162,6 +162,17 @@ e.g.
       });
 
       const txHash = await executeGaslessMassPay(txs);
+
+      if (txHash.startsWith("Error")) {
+        toast({
+          title: "Something went wrong",
+          description: `There was an error sending your transaction. ${txHash}.`,
+          duration: 7000,
+        });
+
+        return; // exit early
+      }
+
       console.debug(getScannerUrl(base.id, txHash));
 
       toast({
@@ -274,8 +285,8 @@ e.g.
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Confirm Recipients And Amounts</DialogTitle>
-            <DialogDescription>
-              <div className="my-2 py-2">
+            <DialogDescription className="my-2 py-2">
+              <Fragment>
                 Make sure everything looks good below before you send your SBC.
                 You can also{" "}
                 <a
@@ -302,7 +313,7 @@ e.g.
                   [estimate the gas impact]
                 </a>
                 .
-              </div>
+              </Fragment>
             </DialogDescription>
           </DialogHeader>
 

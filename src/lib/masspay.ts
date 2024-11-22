@@ -99,6 +99,14 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
     deadline,
   );
 
+  if (signature === "0xError") {
+    console.debug("Error signing permit transaction");
+    return {
+      smartAccountClient,
+      calls: [],
+    };
+  }
+
   const { r, s, v } = parseSignature(signature);
 
   // encode the permit transaction calldata
@@ -132,6 +140,10 @@ export async function executeGaslessMassPay(
   try {
     const { smartAccountClient, calls } = await prepareMassPay(txs);
 
+    if (calls.length === 0) {
+      return "Error preparing mass pay";
+    }
+
     // send the batch call transaction to the SimpleAccount,
     // using your gas credits policy ID
     const userOpHash = await smartAccountClient.sendTransaction({
@@ -143,8 +155,7 @@ export async function executeGaslessMassPay(
 
     return userOpHash;
   } catch (e) {
-    console.error(e);
-    throw e;
+    return (e as any).message;
   }
 }
 
@@ -153,6 +164,10 @@ export async function estimateGasForMassPay(
 ): Promise<bigint> {
   try {
     const { smartAccountClient, calls } = await prepareMassPay(txs);
+
+    if (calls.length === 0) {
+      return 0n;
+    }
 
     const userOperation = (await smartAccountClient.prepareUserOperation({
       calls,
@@ -242,7 +257,6 @@ async function getPermitSignature(
 
     return signature as Hex;
   } catch (e) {
-    console.error(e);
     return "0x";
   }
 }
