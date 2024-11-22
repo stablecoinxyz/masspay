@@ -1,7 +1,7 @@
 {
-  "name": "gasless-masspay",
+  "name": "masspay-example",
   "version": "1.0.0",
-  "private": true,
+  "license": "MIT",
   "author": "Stable Coin Inc.",
   "scripts": {
     "dev": "next dev",

@@ -1,13 +1,13 @@
-# gasless-swap
+# masspay-example
 
-This project is a simple web application that allows users to swap tokens on the Base blockchain without having to pay for gas fees. It uses the [Pimlico](https://pimlico.io/) Paymaster and Account Abstraction SDK to execute the swaps and [WalletConnect](https://reown.com/) to connect to the user's wallet.
+This repo contains a utility allowing users to airdrop an ERC20 token (e.g. SBC) on the Base blockchain without having to pay for gas fees. It uses the [Pimlico](https://pimlico.io/) Paymaster and Account Abstraction SDK to send user operations and [WalletConnect](https://reown.com/) to connect to the user's wallet.
 
 ## Environment Variables
 
 To run this project, you will need to add the following environment variables to your .env file:
 
-- `NEXT_PUBLIC_PIMLICO_API_KEY` - refer to the [Pimlico dashboard](https://dashboard.pimlico.io/)
-- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - refer to the [WalletConnect dashboard](https://cloud.reown.com/)
+- `NEXT_PUBLIC_PIMLICO_API_KEY` - get your API key from the [Pimlico dashboard](https://dashboard.pimlico.io/)
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - create a project and get its ID from the [WalletConnect dashboard](https://cloud.reown.com/)
 
 ## Run locally
 
@@ -22,22 +22,6 @@ Start development server
 ```bash
 npm run dev
 ```
-
-Create a production build
-
-```bash
-npm run build
-```
-
-Preview the production build
-
-```bash
-npm run start
-```
-
-## Deployment (Vercel)
-
-Making commits or merging pull requests to the `main` branch will automatically deploy to Vercel (production environment at [https://swap.stablecoin.xyz](https://swap.stablecoin.xyz)).
 
 ## Author
 
