@@ -12,6 +12,10 @@ You can first swap for SBC on Base using the [Gasless Swap](https://swap.stablec
 
 The SBC token is a multi-chain stablecoin pegged to the USD via Brale. The code for the SBC token can be found [here](https://sepolia.basescan.org/token/0xf9FB20B8E097904f0aB7d12e9DbeE88f2dcd0F16#code).
 
+Once you have a SBC balance in your wallet, connect your wallet (top right corner). You can then input the recipient addresses and amounts to airdrop via `Copy and Paste Mode` or `CSV Mode`. Each line is to follow the format `address,amount`. You can airdrop different amounts for different addresses if you wish.
+
+Currently, the project is set up to airdrop SBC tokens to 200 addresses at a time.
+
 ## Environment Variables
 
 To run this project, you will need to add the following environment variables to your .env file:
