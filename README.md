@@ -2,6 +2,16 @@
 
 This repo contains a utility allowing users to airdrop an ERC20 token (e.g. SBC) on the Base blockchain without having to pay for gas fees. It uses the [Pimlico](https://pimlico.io/) Paymaster and Account Abstraction SDK to send user operations and [WalletConnect](https://reown.com/) to connect to the user's wallet. The [ShadCN UI](https://ui.shadcn.com/) component library is used for buttons, dialogs, tables, and toasts.
 
+## Demo
+
+You can interact with a live demo of the project [here](https://masspay.stablecoin.xyz/). You would need to have the SBC token and be on the Base blockchain.
+
+[![masspay-example](./public/docs/masspay-1.png)](https://masspay.stablecoin.xyz/)
+
+You can first swap for SBC on Base using the [Gasless Swap](https://swap.stablecoin.xyz/), which uses Uniswap V3 behind the scenes. The code for the Gasless Swap can be found [here](https://github.com/stablecoinxyz/gasless-swap/).
+
+The SBC token is a multi-chain stablecoin pegged to the USD via Brale. The code for the SBC token can be found [here](https://sepolia.basescan.org/token/0xf9FB20B8E097904f0aB7d12e9DbeE88f2dcd0F16#code).
+
 ## Environment Variables
 
 To run this project, you will need to add the following environment variables to your .env file:
@@ -18,7 +28,7 @@ Install dependencies
 npm install
 ```
 
-Start development server
+Start development server after setting up the environment variables
 
 ```bash
 npm run dev
