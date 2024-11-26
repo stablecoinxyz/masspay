@@ -1,4 +1,4 @@
-# masspay-example
+# masspay
 
 This repo contains a utility allowing users to airdrop an ERC20 token (e.g. SBC) on the Base blockchain without having to pay for gas fees. It uses the [Pimlico](https://pimlico.io/) Paymaster and Account Abstraction SDK to send user operations and [WalletConnect](https://reown.com/) to connect to the user's wallet. The [ShadCN UI](https://ui.shadcn.com/) component library is used for buttons, dialogs, tables, and toasts.
 
