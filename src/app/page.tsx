@@ -2,9 +2,8 @@
 import Image from "next/image";
 import { Fragment, useState } from "react";
 import { useAccount, useBalance, useWalletClient } from "wagmi";
-import { Hex, isAddress } from "viem";
+import { Hex, isAddress, formatUnits } from "viem";
 import { base } from "viem/chains";
-import { ethers } from "ethers";
 
 import { getScannerUrl } from "@/lib/providers";
 import { SBC } from "@/lib/constants";
@@ -290,7 +289,6 @@ e.g.
                 Make sure everything looks good below before you send your SBC.
                 You can also{" "}
                 <a
-                  href="#"
                   onClick={async (e) => {
                     const txs = addrAmt.split("\n").map((line) => {
                       const [addr, amt] = line.split(",");
@@ -300,8 +298,8 @@ e.g.
                       };
                     });
                     const gasCost = (await estimateGas(txs)) as bigint;
-                    const friendlyGasCost = ethers.formatUnits(gasCost, "gwei");
-                    const gasCostInEth = ethers.formatUnits(gasCost, "ether");
+                    const friendlyGasCost = formatUnits(gasCost, 9); // gwei
+                    const gasCostInEth = formatUnits(gasCost, 18); // eth
                     console.debug(gasCost);
                     toast({
                       title: "Gas Estimate",

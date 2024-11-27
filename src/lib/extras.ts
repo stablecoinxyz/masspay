@@ -1,5 +1,5 @@
-import { ethers } from "ethers";
+import { parseUnits } from "viem";
 
 export function fromReadableAmount(amount: number, decimals: number): BigInt {
-  return ethers.parseUnits(amount.toString(), decimals);
+  return parseUnits(amount.toString(), decimals);
 }

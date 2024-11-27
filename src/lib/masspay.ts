@@ -1,5 +1,4 @@
-import { Token } from "@uniswap/sdk-core";
-import { ethers } from "ethers";
+import { BigintIsh, Token } from "@uniswap/sdk-core";
 
 import erc20PermitAbi from "@/lib/abi/erc20Permit.abi";
 
@@ -15,9 +14,11 @@ import { fromReadableAmount } from "@/lib/extras";
 import {
   createWalletClient,
   custom,
+  encodeFunctionData,
   erc20Abi,
   Hex,
   http,
+  parseAbi,
   parseSignature,
   WalletClient,
 } from "viem";
@@ -65,7 +66,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
 
   // calculate tx values as BigInts using token's decimal places
   const decimalPlaces = SBC.decimals;
-  const txnBigInts = txs.map((tx) => {
+  const txnBigInts: { to: string; value: bigint }[] = txs.map((tx) => {
     return {
       to: tx.to,
       value: BigInt(fromReadableAmount(tx.value, decimalPlaces).toString()),
@@ -74,12 +75,11 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
   console.debug(owner.account.address, txs, txnBigInts);
 
   const calls = txnBigInts.map((tx) => {
-    const erc20ContractAbi = new ethers.Interface(erc20Abi);
-    const transferData = erc20ContractAbi.encodeFunctionData("transferFrom", [
-      owner.account.address as Hex,
-      tx.to,
-      tx.value,
-    ]) as Hex;
+    const transferData = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "transferFrom",
+      args: [owner.account.address as Hex, tx.to as Hex, tx.value],
+    });
     return {
       from: owner.account.address as Hex,
       to: SBC.address as Hex,
@@ -110,16 +110,19 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
   const { r, s, v } = parseSignature(signature);
 
   // encode the permit transaction calldata
-  const erc20PermitContractAbi = new ethers.Interface(erc20PermitAbi);
-  const permitData = erc20PermitContractAbi.encodeFunctionData("permit", [
-    CurrentConfig.account!.address as Hex,
-    senderAddress,
-    totalValue,
-    deadline,
-    v,
-    r,
-    s,
-  ]) as Hex;
+  const permitData = encodeFunctionData({
+    abi: erc20PermitAbi,
+    functionName: "permit",
+    args: [
+      CurrentConfig.account!.address as Hex,
+      senderAddress,
+      totalValue,
+      deadline,
+      v,
+      r,
+      s,
+    ],
+  });
 
   // prepend to the calls array
   calls.unshift({
