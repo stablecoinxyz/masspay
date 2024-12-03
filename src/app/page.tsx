@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useAccount, useBalance, useWalletClient } from "wagmi";
 import { Hex, isAddress, formatUnits } from "viem";
 import { base } from "viem/chains";
@@ -32,9 +32,55 @@ export default function MassPayPage() {
     CurrentConfig.account = account!;
   }
 
+  type Transaction = {
+    to: string;
+    value: number;
+  };
+
+  type BatchedTransaction = {
+    id: string;
+    txs: Transaction[];
+    status: string;
+    txHash: string;
+    url: string;
+  };
+
+  type CsvDownload = {
+    url?: string;
+    blob?: Blob;
+    status: string;
+  };
+
   const [csvMode, setCsvMode] = useState<boolean>(false);
   const [addrAmt, setAddrAmt] = useState<string>("");
   const [csvData, setCsvData] = useState<DataConfig>(dataConfig);
+  const [batchedTxs, setBatchedTxs] = useState<BatchedTransaction[]>([]);
+  const [txBatch, setTxBatch] = useState<number>(-1);
+  const [csvDownload, setCsvDownload] = useState<CsvDownload>({status: "pending"});
+
+
+  useEffect(() => {
+    const executeTx = async () => {
+      try {
+        if(txBatch >= 0 && txBatch < batchedTxs.length) {      
+            const txHash = await executeGaslessMassPay(batchedTxs[txBatch].txs);
+          // const txHash = await executeFakeGaslessMassPay(batchedTxs[txBatch].txs);
+          updatedBatchedTx(txBatch, txHash);
+          setTxBatch(txBatch + 1);
+        } else if (txBatch === batchedTxs.length) {
+          const csvContent = generateCsvContent();
+          const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          setCsvDownload({url, blob, status: "complete"});
+          setTxBatch(-1);
+        }
+      } catch (error) {
+        console.error('Error in executeGaslessMassPay.', error);
+      }
+    };
+
+    executeTx();
+  }, [txBatch]); 
 
   const { toast } = useToast();
 
@@ -65,7 +111,7 @@ e.g.
 
         <div className="mx-auto min-w-[100px]">
           <WalletBalanceInfo />
-
+          {batchedTxs.length > 0 && <BatchedTransactions />}
           {csvMode ? <CsvMode /> : <CopyPasteMode />}
 
           <Disclaimer />
@@ -135,13 +181,33 @@ e.g.
     }
   }
 
+  function generateCsvContent() {
+    const header = "txHash,address to,value,status,url";
+    const rows = batchedTxs.flatMap((btx) => btx.txs.map((tx) => `${btx.txHash},${tx.to},${tx.value},${btx.status},${btx.url}`)).join("\n");
+    return `${header}\n${rows}`;
+  }
+
+  function batchTransactions(txs: Transaction[]): BatchedTransaction[] {
+    const BATCH_SIZE = 6;
+    let result: BatchedTransaction[] = [];
+    for (let i = 0; i < txs.length; i += BATCH_SIZE) {
+      result.push({
+        id: generateFakeHash(),
+        txs: txs.slice(i, i + BATCH_SIZE),
+        status: "Not Started",
+        txHash: "",
+        url: ""
+      });
+    }
+    return result;
+  }
+
   /**
    * Handles the form submission event.
    *
    * @param {React.FormEvent<HTMLElement>} evt - The form submission event.
-   * @returns {Promise<void>} A promise that resolves when the form submission handling is complete.
    */
-  async function handleSubmit(
+  function handleSubmit(
     evt: React.FormEvent<HTMLElement>,
   ): Promise<void> {
     evt.preventDefault();
@@ -160,31 +226,33 @@ e.g.
         };
       });
 
-      const txHash = await executeGaslessMassPay(txs);
+      const txBatches = batchTransactions(txs);
+      setBatchedTxs(txBatches);    
+      setTxBatch(0);
+      setCsvDownload({status: "pending"});
+      // if (txHash.startsWith("Error")) {
+      //   toast({
+      //     title: "Something went wrong",
+      //     description: `There was an error sending your transaction. ${txHash}.`,
+      //     duration: 7000,
+      //   });
 
-      if (txHash.startsWith("Error")) {
-        toast({
-          title: "Something went wrong",
-          description: `There was an error sending your transaction. ${txHash}.`,
-          duration: 7000,
-        });
+      //   return; // exit early
+      // }
 
-        return; // exit early
-      }
+      // console.debug(getScannerUrl(base.id, txHash));
 
-      console.debug(getScannerUrl(base.id, txHash));
-
-      toast({
-        title: "Transaction Sent",
-        action: (
-          <ToastAction altText="View on BaseScan">View Status</ToastAction>
-        ),
-        description: `🎉 Check your transaction status 👉🏻`,
-        duration: 10000,
-        onClick: () => {
-          window.open(getScannerUrl(base.id, txHash));
-        },
-      });
+      // toast({
+      //   title: "Transaction Sent",
+      //   action: (
+      //     <ToastAction altText="View on BaseScan">View Status</ToastAction>
+      //   ),
+      //   description: `🎉 Check your transaction status 👉🏻`,
+      //   duration: 10000,
+      //   onClick: () => {
+      //     window.open(getScannerUrl(base.id, txHash));
+      //   },
+      // });
     } catch (error) {
       console.error(error);
       toast({
@@ -195,6 +263,7 @@ e.g.
     }
 
     resetData();
+    return Promise.resolve();
   }
 
   function Header() {
@@ -256,6 +325,80 @@ e.g.
             </div>
           )}
         </div>
+      </div>
+    );
+  }
+
+  function BatchedTransactions() {
+    const batchedTxObjs = [];
+    for (let i = 0; i < batchedTxs.length; i++) {
+      batchedTxObjs.push(transactionBatch(batchedTxs[i]));
+    }
+    return (
+      <div className="mb-4 text-lg bg-slate-50 p-4 rounded w-auto">
+        {batchedTxObjs}
+        <div className="flex flex-col items-center mt-3">{
+        csvDownload.status != "pending" && 
+        <a href={csvDownload.url} download="masspay.csv">
+          <button className="text-sm text-center font-semibold bg-violet-600 dark:bg-white bg-violet-600 dark:text-zinc-900 text-neutral-100 rounded-sm p-2">Download CSV Summary</button>
+        </a>
+        }</div>
+      </div>
+    );
+  }
+
+  
+  function generateFakeHash(): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+  
+    for (let i = 0; i < 20; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters.charAt(randomIndex);
+    }
+  
+    return (Math.floor(Math.random() * (10 - 0 + 1)) + 0) <= 8 ? `0x${result}` : `Errorx${result}`;
+  }
+
+  function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+  }
+
+  async function executeFakeGaslessMassPay(txs: Transaction[]): Promise<string> {
+    await delay(1000);
+    return Promise.resolve(generateFakeHash());
+  }
+
+  function updatedBatchedTx(index: number, txHash: string) {
+    const batchedTxsUpdate = [...batchedTxs];
+    batchedTxsUpdate[index].status = txHash.startsWith("Error") ? "Transaction Failed" : "Transaction Complete";
+    batchedTxsUpdate[index].txHash = `${txHash.substring(0, 12)}...`;
+    batchedTxsUpdate[index].url = `https://sepolia.basescan.org/${txHash}`;
+    setBatchedTxs(batchedTxsUpdate);
+  }
+
+  function txStatusColor(txStatus: string) {
+    switch (txStatus) {
+      case "Transaction Complete":
+        return "text-green-600";
+      case "Transaction Failed":
+        return "text-red-400";
+      default:
+        return "text-gray-500";
+    }
+  }
+
+  function transactionBatch(btx: BatchedTransaction) {
+    return (
+      <div key={btx.id} className="grid grid-cols-9 items-center gap-2 text-sm pt-3 pb-3 border-b-2 border-violet-200">
+        <div className="col-span-4 text-sm">{!!btx.txHash ? (btx.txHash) : `${btx.txs.length} Transactions`}</div>
+        <div className={`col-span-3 text-sm text-right font-semibold ${txStatusColor(btx.status)}`}>{btx.status}</div>
+        <div className="col-span-1"></div>
+        {!!btx.url && 
+          <a href={btx.url} target="_blank">
+            <button className="col-span-1 text-sm text-center font-semibold bg-violet-600 dark:bg-white bg-violet-600 dark:text-zinc-900 text-neutral-100 rounded-sm p-1">View</button>
+          </a>
+        }
       </div>
     );
   }
