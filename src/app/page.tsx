@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { btnClasses } from "./constants";
 
 import { CsvImporter } from "@/components/CsvImporter";
 import { estimateGasForMassPay, executeGaslessMassPay } from "@/lib/masspay";
@@ -35,6 +36,7 @@ export default function MassPayPage() {
   const [csvMode, setCsvMode] = useState<boolean>(false);
   const [addrAmt, setAddrAmt] = useState<string>("");
   const [csvData, setCsvData] = useState<DataConfig>(dataConfig);
+  const [txCompleted, setTxCompleted] = useState<boolean>(true);
 
   const { toast } = useToast();
 
@@ -47,12 +49,7 @@ export default function MassPayPage() {
     token: SBC.address as Hex,
   });
 
-  const btnClasses =
-    "mt-2 py-3 dark:bg-white bg-violet-600 dark:text-zinc-900 text-neutral-100 hover:font-extrabold disabled:font-normal disabled:cursor-not-allowed disabled:opacity-50 rounded-lg w-full";
-
-  const placeholder = `Enter a list of addresses and amounts separated by a comma. 
-e.g.
-
+  const placeholder = `e.g.
 0xB5f6fECd59dAd3d5bA4Dfe8FcCA6617CE71B99f9, 0.01
 0x589c0e47DE10e0946e2365580B700790AAAbe9f7, 0.001
 ...
@@ -65,9 +62,6 @@ e.g.
 
         <div className="mx-auto min-w-[360px]">
           <WalletCard />
-
-          {/* {csvMode ? <CsvMode /> : <CopyPasteMode />} */}
-
           <MassPayCard />
           <Disclaimer />
         </div>
@@ -201,8 +195,10 @@ e.g.
   function Header() {
     return (
       <header className="flex flex-col items-center my-20 mb-6">
-        <Image src="/globus.svg" width={24} height={24} alt="Globe" />
-        <h1 className="text-3xl font-semibold tracking-tighter">MassPay</h1>
+        <Image src="/globus.svg" width={42} height={42} alt="Globe" />
+        <h1 className="my-4 text-3xl font-semibold tracking-tighter">
+          MassPay
+        </h1>
         <div className="flex flex-col items-center mt-2 text-center">
           Send payments to multiple recipients with zero gas fees, powered by
           Stablecoin.xyz
@@ -215,9 +211,9 @@ e.g.
     return (
       <div className="text-center mt-4 text-xs text-gray-500">
         <div>
-          <strong>Disclaimer:</strong> This utility is provided as-is and
-          without warranty. Please verify all addresses and amounts before
-          sending.
+          <strong>Disclaimer:</strong> This tool is provided &quot;as-is&quot;
+          without warranty. Double-check all recipient addresses and payment
+          amounts before proceeding to ensure accuracy.
         </div>
       </div>
     );
@@ -343,64 +339,44 @@ e.g.
       <Dialog>
         <DialogTrigger asChild>
           <button className={btnClasses} disabled={!isValid(addrAmt)}>
-            Continue
+            Proceed to Payment
           </button>
         </DialogTrigger>
         {addrAmt && (
           <button
-            className="text-violet-600 hover:font-semibold w-full mt-2 py-3"
+            className="text-mutedForeground hover:font-semibold w-full mt-2 py-3"
             onClick={() => resetData()}
           >
             Start Over
           </button>
         )}
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] bg-background text-foreground">
           <DialogHeader>
             <DialogTitle>Confirm Recipients And Amounts</DialogTitle>
             <DialogDescription className="my-2 py-2">
               <Fragment>
-                Make sure everything looks good below before you send your SBC.
-                You can also{" "}
-                <a
-                  onClick={async (e) => {
-                    const txs = addrAmt.split("\n").map((line) => {
-                      const [addr, amt] = line.split(",");
-                      return {
-                        to: addr.trim(),
-                        value: parseFloat(amt.trim()),
-                      };
-                    });
-                    const gasCost = (await estimateGas(txs)) as bigint;
-                    const friendlyGasCost = formatUnits(gasCost, 9); // gwei
-                    const gasCostInEth = formatUnits(gasCost, 18); // eth
-                    console.debug(gasCost);
-                    toast({
-                      title: "Gas Estimate",
-                      description: `Gas cost for this transaction is ${friendlyGasCost} gwei (${gasCostInEth} ETH).`,
-                      duration: 10000,
-                    });
-                  }}
-                >
-                  [estimate the gas impact]
-                </a>
-                .
+                Please verify the details below before sending your SBC.
+                Double-check recipient addresses and amounts to ensure
+                everything is accurate.
               </Fragment>
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-6 items-center gap-2 text-sm pt-4">
-            <div className="col-span-5 text-sm font-extrabold">Address</div>
-            <div className="col-span-1 text-sm font-extrabold">Amount</div>
+          <div className="grid grid-cols-6 items-center text-sm text-mutedForeground pt-2">
+            <div className="col-span-5 text-sm font-extrabold p-2">Address</div>
+            <div className="col-span-1 text-sm font-extrabold text-right p-2">
+              Amount
+            </div>
 
             {addrAmt.split("\n").map((line, idx) => {
               const [addr, amt] = line.split(",");
               if (idx < 3 || idx > addrAmt.split("\n").length - 4) {
                 return (
                   <Fragment key={idx}>
-                    <div className="col-span-5 text-sm p-2 border relative">
+                    <div className="col-span-5 text-sm text-foreground p-2 border border-border relative">
                       {addr}
                     </div>
-                    <div className="col-span-1 bg-zinc-100 p-2 text-right">
+                    <div className="col-span-1 border border-border p-2 text-foreground text-right">
                       {amt}
                     </div>
                   </Fragment>
@@ -417,7 +393,7 @@ e.g.
             })}
           </div>
 
-          <div className="grid grid-cols-2 text-sm mt-4">
+          <div className="grid grid-cols-2 text-sm text-mutedForeground mt-4">
             <div className="">Beginning balance:</div>
             <div className="text-right">
               {sbcBalance && Number(sbcBalance.formatted).toFixed(6)}
@@ -458,24 +434,24 @@ e.g.
   function CopyPasteMode() {
     return (
       <>
+        <div className="text-2xl my-4 text-left w-full">
+          Enter payment details
+        </div>
+        <div className="text-mutedForeground text-sm">
+          Provide recipient addresses and payment amounts separated by commas.
+          You can also upload a CSV file for bulk payments.
+        </div>
+
         <textarea
           id="addressesAmounts"
           key="addressesAmounts"
           value={addrAmt}
-          className="w-full h-48 mt-4 p-2 border border-gray-700 rounded-lg text-sm"
+          className="w-full h-48 mt-4 p-2 bg-background border border-border rounded-lg text-sm"
           placeholder={placeholder}
           onChange={(e) => setAddrAmt(e.target.value.trim())}
         />
-
-        <PreviewDialog />
-
-        <div className="text-center text-xs text-gray-500 my-8 py-8 border-t-2 border-violet-200">
-          <div className="text-lg">
-            Or{" "}
-            <strong>
-              <button onClick={() => setCsvMode(true)}>Upload a CSV</button>
-            </strong>
-          </div>
+        <div className="my-6 w-full">
+          <PreviewDialog />
         </div>
       </>
     );
@@ -512,23 +488,17 @@ e.g.
                   className="self-end"
                   disabled={!isConnected}
                 />
-                <span className="text-center text-xs mb-8">
-                  {!isConnected && (
-                    <>
-                      <span className="text-red-500">
-                        Please connect your wallet
-                      </span>{" "}
-                      to upload a CSV file.{" "}
-                    </>
-                  )}
+                <span className="text-center text-sm mb-8">
                   Note: the first row of your CSV file must be:{" "}
-                  <code className="bg-yellow-50 px-1 mx-1">address,amount</code>
+                  <code className="bg-secondaryBackground px-1 mx-1">
+                    address,amount
+                  </code>
                 </span>
               </>
             )}
 
             {csvData && csvData.length > 0 && isValid(addrAmt) && (
-              <div className="rounded-md border w-full text-center">
+              <div className="w-full text-center text-xl">
                 🔎 {csvData.length} rows of data found.
               </div>
             )}
@@ -544,17 +514,6 @@ e.g.
               </div>
             )}
             {addrAmt && isValid(addrAmt) && <PreviewDialog />}
-          </div>
-        </div>
-
-        <div className="text-center text-xs text-gray-500 my-8 py-8 border-t-2 border-violet-200">
-          <div className="text-lg">
-            Back to{" "}
-            <strong>
-              <button onClick={() => setCsvMode(false)}>
-                Copying &amp; Pasting Data
-              </button>
-            </strong>
           </div>
         </div>
       </>

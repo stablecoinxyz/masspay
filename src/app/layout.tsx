@@ -18,7 +18,7 @@ export default function RootLayout({
         <Web3Provider>
           <div className="bg-background text-foreground">
             <Navigation />
-            {children}
+            <div className="py-12">{children}</div>
           </div>
         </Web3Provider>
         <Toaster />
