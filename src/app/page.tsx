@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import { useAccount, useBalance, useWalletClient } from "wagmi";
 import { Hex, isAddress, formatUnits } from "viem";
 import { base } from "viem/chains";
-
+import { ConnectWallet } from "@/components/ConnectWallet";
 import { getScannerUrl } from "@/lib/providers";
 import { SBC } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
@@ -60,14 +60,15 @@ e.g.
 
   return (
     <main className="px-4 pb-10 min-h-[100vh] min-w-[600] flex items-top justify-center container max-w-screen-lg mx-auto">
-      <div className="w-1/2">
+      <div className="w-3/5 min-w-[540px]">
         <Header />
 
-        <div className="mx-auto min-w-[100px]">
-          <WalletBalanceInfo />
+        <div className="mx-auto min-w-[360px]">
+          <WalletCard />
 
-          {csvMode ? <CsvMode /> : <CopyPasteMode />}
+          {/* {csvMode ? <CsvMode /> : <CopyPasteMode />} */}
 
+          <MassPayCard />
           <Disclaimer />
         </div>
       </div>
@@ -200,21 +201,11 @@ e.g.
   function Header() {
     return (
       <header className="flex flex-col items-center my-20 mb-6">
-        <h1 className="text-2xl font-semibold tracking-tighter">
-          Stable Coin | MassPay
-        </h1>
-
-        <div className="text-base mt-2">
-          A gasless mass pay utility from
-          <div className="text-center">
-            <a
-              href="https://stablecoin.xyz"
-              target="_blank"
-              className="text-violet-700 hover:font-semibold"
-            >
-              stablecoin.xyz
-            </a>
-          </div>
+        <Image src="/globus.svg" width={24} height={24} alt="Globe" />
+        <h1 className="text-3xl font-semibold tracking-tighter">MassPay</h1>
+        <div className="flex flex-col items-center mt-2 text-center">
+          Send payments to multiple recipients with zero gas fees, powered by
+          Stablecoin.xyz
         </div>
       </header>
     );
@@ -232,30 +223,112 @@ e.g.
     );
   }
 
-  function WalletBalanceInfo() {
+  function WalletCard() {
     return (
-      <div className="mb-2 text-lg bg-slate-50 p-4 rounded w-auto">
-        <div className="flex flex-col items-center space-y-2">
-          <div className="flex flex-row space-x-2 text-normal font-semibold">
-            <Image
-              className="flex"
-              src="/sbc-logo.svg"
-              alt="Stable Coin Inc."
-              width="24"
-              height="24"
-            />
-            <div className="flex">SBC</div>
-          </div>
-          <div className="flex text-sm">{SBC.address}</div>
-          {sbcBalance && (
-            <div className="flex px-4 py-2 rounded-lg bg-yellow-50">
-              Balance:{" "}
-              {!isSbcLoading &&
-                sbcBalance &&
-                Number(sbcBalance.formatted).toFixed(3)}{" "}
-            </div>
+      <div className=" bg-card rounded w-auto">
+        <div className="flex flex-col relative items-start p-6">
+          <h2 className="text-xl font-medium">Your wallet</h2>
+
+          {isConnected && isFetched ? (
+            <p className="text-sm text-mutedForeground">
+              Wallet is now linked and ready for transactions
+            </p>
+          ) : (
+            <p className="text-sm text-mutedForeground">
+              Link your wallet to start sending payments
+            </p>
           )}
+
+          {wallet && sbcBalance && <BalanceTable />}
+
+          <div className="ml-auto absolute top-[3.8rem] right-6">
+            <ConnectWallet />
+          </div>
         </div>
+      </div>
+    );
+  }
+
+  function BalanceTable() {
+    return (
+      <div className="flex flex-col items-center mt-4 w-full">
+        <table className="text-base text-mutedForeground bg-mutedBackground border rounded-lg border-border">
+          <thead>
+            <tr className="text-mutedForeground">
+              <th className="px-4 pt-4 w-5/6 text-left">Currency</th>
+              <th className="px-4 pt-4 text-center">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="text-mutedForeground">
+              <td className="px-4 pb-4 w-5/6 text-lg text-foreground flex items-start space-x-2">
+                <Image
+                  className="mt-1"
+                  src="/sbclogo.svg"
+                  width={24}
+                  height={24}
+                  alt="SBC"
+                />
+                <span className="ml-2 mt-1">SBC</span>
+              </td>
+              <td className="px-4 pb-4 text-lg text-foreground text-center">
+                {sbcBalance && Number(sbcBalance.formatted).toFixed(3)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  function MassPayCard() {
+    return (
+      <div className=" bg-card rounded w-auto">
+        <div className="flex justify-center space-x-4 mt-4">
+          <div
+            className={`p-4 ${!csvMode ? "border-b-2 border-violet-600" : ""}`}
+          >
+            <button
+              className={`text-lg ${!csvMode ? "text-cardForeground" : ""}`}
+              onClick={() => setCsvMode(false)}
+            >
+              Manual
+            </button>
+          </div>
+          <div
+            className={`p-4 ${csvMode ? "border-b-2 border-violet-600" : ""}`}
+          >
+            <button
+              className={`text-lg ${csvMode ? "text-cardForeground" : ""}`}
+              onClick={() => setCsvMode(true)}
+            >
+              Upload CSV
+            </button>
+          </div>
+        </div>
+        <MassPayCardValues />
+      </div>
+    );
+  }
+
+  function MassPayCardValues() {
+    return (
+      <div className="flex flex-col items-center p-6">
+        {isFetched && isConnected ? (
+          csvMode ? (
+            <CsvMode />
+          ) : (
+            <CopyPasteMode />
+          )
+        ) : (
+          <>
+            <Image alt="wallet" src="walletIcon.svg" width={36} height={36} />
+            <div className="text-2xl my-4">Connect your wallet</div>
+            <div className="text-mutedForeground">
+              Start by connecting your wallet
+            </div>
+          </>
+        )}
       </div>
     );
   }
