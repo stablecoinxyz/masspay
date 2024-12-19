@@ -45,13 +45,6 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
     },
   });
 
-  // get the sender (counterfactual) address of the SimpleAccount
-  const senderAddress = simpleAccount.address;
-
-  // 30 min deadline
-  const deadline = Math.floor(Date.now() / 1000) + 60 * 30;
-
-  // create a pimlico SmartAccountClient
   const smartAccountClient = createSmartAccountClient({
     account: simpleAccount,
     chain: base,
@@ -64,7 +57,6 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
     },
   });
 
-  // calculate tx values as BigInts using token's decimal places
   const decimalPlaces = SBC.decimals;
   const txnBigInts: { to: string; value: bigint }[] = txs.map((tx) => {
     return {
@@ -88,6 +80,12 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
   });
 
   const totalValue = BigInt(txnBigInts.reduce((acc, tx) => acc + tx.value, 0n));
+
+  // 30 min deadline
+  const deadline = Math.floor(Date.now() / 1000) + 60 * 30;
+
+  // get the sender (counterfactual) address of the SimpleAccount
+  const senderAddress = simpleAccount.address;
 
   // prepend the permit data instruction
   const signature = await getPermitSignature(
