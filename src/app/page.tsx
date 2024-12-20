@@ -201,7 +201,7 @@ export default function MassPayPage() {
         </h1>
         <div className="flex flex-col items-center mt-2 text-center">
           Send payments to multiple recipients with zero gas fees, powered by
-          Stablecoin.xyz
+          Stablecoin.xyz. We support up to 200 recipients per transaction.
         </div>
       </header>
     );
