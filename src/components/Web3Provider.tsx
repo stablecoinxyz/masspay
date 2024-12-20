@@ -18,12 +18,12 @@ const config = createConfig(
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
 
     // Required App Info
-    appName: "Gasless Swap | Stable Coin",
+    appName: "Gasless Masspay | Stable Coin",
 
     // Optional App Info
-    appDescription: "A gasless swap app",
-    appUrl: "https://swap.stablecoin.xyz",
-    appIcon: "https://swap.stablecoin.xyz/sbc-logo.svg", // your app's icon, no bigger than 1024x1024px (max. 1MB)
+    appDescription: "Gasless Masspay with SBC",
+    appUrl: "https://masspay.stablecoin.xyz",
+    appIcon: "https://masspay.stablecoin.xyz/sbc-logo.svg", // your app's icon, no bigger than 1024x1024px (max. 1MB)
   }),
 );
 
@@ -44,7 +44,7 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>{children}</ConnectKitProvider>
+        <ConnectKitProvider theme="midnight">{children}</ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

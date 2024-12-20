@@ -40,6 +40,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FileUploader } from "@/components/FileUploader";
+import { btnClasses } from "@/app/constants";
 
 interface CsvImporterProps
   extends React.ComponentPropsWithoutRef<typeof DialogTrigger>,
@@ -97,128 +98,132 @@ export function CsvImporter({
     getSanitizedData,
   } = useParseCsv({ fields });
 
-  const btnClasses =
-    "mt-2 py-3 dark:bg-white bg-violet-600 dark:text-zinc-900 text-lg text-neutral-100 hover:font-extrabold disabled:font-normal disabled:cursor-not-allowed disabled:opacity-50 rounded-lg w-full";
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {step === "upload" ? (
-        <DialogContent className="p-8 sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Upload CSV</DialogTitle>
-            <DialogDescription>
-              Drag and drop your files here or click to browse.
-            </DialogDescription>
-          </DialogHeader>
-          <FileUploader
-            accept={{ "text/csv": [] }}
-            multiple={false}
-            maxSize={4 * 1024 * 1024}
-            maxFileCount={1}
-            /**
-             * onValueChange is used if we don't need to upload files
-             */
-            onValueChange={(files) => {
-              const file = files[0];
-              if (!file) return;
-
-              onParse({ file, limit: 1001 });
-
-              setStep("map");
-            }}
-            /**
-             * onUpload is used if we need to upload files
-             */
-            // onUpload={async (files) => {
-            //   const file = files[0];
-            //   if (!file) return;
-            //   await onUpload(files);
-
-            //   onParse({ file, limit: 1001 });
-            //   setStep("map");
-            // }}
-          />
-        </DialogContent>
-      ) : (
-        <DialogContent className="overflow-hidden p-8 sm:max-w-6xl">
-          <div className="flex flex-col items-center gap-2 sm:flex-row">
-            <DialogHeader className="flex-1">
-              <DialogTitle>Map fields</DialogTitle>
+    <div className="text-foreground bg-background border-border">
+      <Dialog open={open} onOpenChange={setOpen}>
+        {step === "upload" ? (
+          <DialogContent className="text-foreground bg-background p-8 sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Upload CSV</DialogTitle>
               <DialogDescription>
-                Map the CSV fields to the corresponding table fields.
+                Drag and drop your files here or click to browse.
               </DialogDescription>
             </DialogHeader>
-            <Button
-              variant="outline"
-              className="w-full sm:w-fit"
-              onClick={onFieldsReset}
-            >
-              Reset
-            </Button>
-          </div>
-          <div className="grid h-[26.25rem] w-full overflow-hidden rounded-md border">
-            <Table className="border-b">
-              <TableHeader className="sticky top-0 z-10 bg-background shadow">
-                <TableRow className="bg-muted/50">
-                  {fields.map((field) => (
-                    <PreviewTableHead
-                      key={field.value}
-                      field={field}
-                      onFieldChange={(f) => {
-                        onFieldChange({
-                          oldValue: f.value,
-                          newValue: field.value,
-                        });
-                      }}
-                      onFieldToggle={onFieldToggle}
-                      originalFieldMappings={fieldMappings.original}
-                      currentFieldMapping={fieldMappings.current[field.value]}
-                      className="border-r"
-                    />
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((row, i) => (
-                  <TableRow key={i} className="h-10">
+            <FileUploader
+              className="text-foreground bg-background"
+              accept={{ "text/csv": [] }}
+              multiple={false}
+              maxSize={4 * 1024 * 1024}
+              maxFileCount={1}
+              /**
+               * onValueChange is used if we don't need to upload files
+               */
+              onValueChange={(files) => {
+                const file = files[0];
+                if (!file) return;
+
+                onParse({ file, limit: 1001 });
+
+                setStep("map");
+              }}
+              /**
+               * onUpload is used if we need to upload files
+               */
+              // onUpload={async (files) => {
+              //   const file = files[0];
+              //   if (!file) return;
+              //   await onUpload(files);
+
+              //   onParse({ file, limit: 1001 });
+              //   setStep("map");
+              // }}
+            />
+          </DialogContent>
+        ) : (
+          <DialogContent className="text-foreground bg-background overflow-hidden p-8 sm:max-w-6xl">
+            <div className=" flex flex-col items-center gap-2 sm:flex-row">
+              <DialogHeader className="flex-1">
+                <DialogTitle>Map fields</DialogTitle>
+                <DialogDescription>
+                  Map the CSV fields to the corresponding table fields.
+                </DialogDescription>
+              </DialogHeader>
+              {/* <Button
+                variant="outline"
+                className="w-full sm:w-fit"
+                onClick={onFieldsReset}
+              >
+                Reset
+              </Button> */}
+            </div>
+            <div className="grid h-[26.25rem] w-full overflow-hidden rounded-md border border-border">
+              <Table className="border-border">
+                <TableHeader className="sticky top-0 z-10 bg-background shadow">
+                  <TableRow className="bg-mutedBackground">
                     {fields.map((field) => (
-                      <TableCell
+                      <PreviewTableHead
                         key={field.value}
-                        className="border-r last:border-r-0"
-                      >
-                        <span className="line-clamp-1">
-                          {String(row[field.value] ?? "")}
-                        </span>
-                      </TableCell>
+                        field={field}
+                        onFieldChange={(f) => {
+                          onFieldChange({
+                            oldValue: f.value,
+                            newValue: field.value,
+                          });
+                        }}
+                        onFieldToggle={onFieldToggle}
+                        originalFieldMappings={fieldMappings.original}
+                        currentFieldMapping={fieldMappings.current[field.value]}
+                        className="border-border text-mutedForeground bg-background"
+                      />
                     ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <DialogFooter className="gap-2 sm:space-x-0">
-            <Button variant="outline" onClick={() => setStep("upload")}>
-              Back
-            </Button>
-            <Button
-              onClick={async () => {
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                onImport(getSanitizedData({ data }));
-                setOpen(false);
-                setStep("upload");
-              }}
-            >
-              Import
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      )}
-      <DialogTrigger asChild>
-        <Button variant="outline" {...props} className={btnClasses}>
-          Upload CSV
-        </Button>
-      </DialogTrigger>
-    </Dialog>
+                </TableHeader>
+                <TableBody>
+                  {data.map((row, i) => (
+                    <TableRow key={i} className="h-10">
+                      {fields.map((field) => (
+                        <TableCell
+                          key={field.value}
+                          className="border-border last:border-border-0"
+                        >
+                          <span className="line-clamp-1">
+                            {String(row[field.value] ?? "")}
+                          </span>
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <DialogFooter className="gap-2 sm:space-x-0">
+              <Button
+                className="bg-primary hover:bg-primary text-foreground hover:text-foreground"
+                onClick={async () => {
+                  await new Promise((resolve) => setTimeout(resolve, 100));
+                  onImport(getSanitizedData({ data }));
+                  setOpen(false);
+                  setStep("upload");
+                }}
+              >
+                Import
+              </Button>
+              <Button
+                className="text-mutedForeground bg-mutedBackground"
+                onClick={() => setStep("upload")}
+              >
+                Back
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
+        <DialogTrigger asChild>
+          <Button {...props} className={btnClasses}>
+            Upload CSV
+          </Button>
+        </DialogTrigger>
+      </Dialog>
+    </div>
   );
 }
 
@@ -244,7 +249,13 @@ function PreviewTableHead({
   const [open, setOpen] = React.useState(false);
 
   return (
-    <TableHead className={cn("whitespace-nowrap py-2", className)} {...props}>
+    <TableHead
+      className={cn(
+        "whitespace-nowrap py-2 text-foreground bg-background",
+        className,
+      )}
+      {...props}
+    >
       <div className="flex items-center gap-4 pr-1.5">
         <div className="flex items-center gap-2">
           <Label htmlFor={`${id}-${field.value}`} className="truncate">
@@ -259,7 +270,7 @@ function PreviewTableHead({
               size="sm"
               role="combobox"
               aria-expanded={open}
-              className="w-48 justify-between"
+              className="w-48 justify-between text-mutedForeground bg-background"
             >
               {currentFieldMapping || "Select field..."}
               <CaretSortIcon className="ml-2 size-4 shrink-0 opacity-50" />
