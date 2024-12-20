@@ -21,15 +21,19 @@ export function Navigation() {
 
       <ul className="w-1/3 flex justify-center space-x-4">
         <li className="m-4 flex flex-row space-x-2 align-baseline">
-          <Image src="nav-swap.svg" alt="Home" width={24} height={24} />
           <Link href="https://app.uniswap.org/explore/pools/base/0xBe432703851c43df6056b47cB55312696cf8Cd6c">
-            Swap
+            <div className="flex flex-row space-x-2 align-baseline">
+              <Image src="nav-swap.svg" alt="Home" width={24} height={24} />
+              <span>Swap</span>
+            </div>
           </Link>
         </li>
         <li className="m-4 flex flex-row space-x-2 align-baseline">
-          <Image src="nav-masspay.svg" alt="Home" width={24} height={24} />
           <Link href="/" className="font-bold">
-            MassPay
+            <div className="flex flex-row space-x-2 align-baseline">
+              <Image src="nav-masspay.svg" alt="Home" width={24} height={24} />
+              <span>MassPay</span>
+            </div>
           </Link>
         </li>
       </ul>
