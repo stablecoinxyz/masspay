@@ -230,8 +230,8 @@ export default function MassPayPage() {
               Wallet is now linked and ready for transactions
             </p>
           ) : (
-            <p className="text-sm text-mutedForeground">
-              Link your wallet to start sending payments
+            <p className="text-xs text-mutedForeground">
+              Link your wallet on the Base network to start sending payments
             </p>
           )}
 
