@@ -3,7 +3,6 @@ import Image from "next/image";
 import { Fragment, useState } from "react";
 import { useAccount, useBalance, useWalletClient } from "wagmi";
 import { Hex, isAddress, formatUnits } from "viem";
-import { base } from "viem/chains";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { getScannerUrl } from "@/lib/providers";
 import { SBC } from "@/lib/constants";
@@ -22,7 +21,7 @@ import { btnClasses } from "./constants";
 
 import { CsvImporter } from "@/components/CsvImporter";
 import { estimateGasForMassPay, executeGaslessMassPay } from "@/lib/masspay";
-import { CurrentConfig, dataConfig, type DataConfig } from "@/config";
+import { chain, CurrentConfig, dataConfig, type DataConfig } from "@/config";
 
 export default function MassPayPage() {
   const account = useAccount();
@@ -46,7 +45,7 @@ export default function MassPayPage() {
     isError: isSbcError,
   } = useBalance({
     address,
-    token: SBC.address as Hex,
+    token: SBC[chain.network].address as Hex,
   });
 
   const placeholder = `e.g.
@@ -167,7 +166,7 @@ export default function MassPayPage() {
         return; // exit early
       }
 
-      console.debug(getScannerUrl(base.id, txHash));
+      console.debug(getScannerUrl(chain.id, txHash));
 
       toast({
         title: "Transaction Sent",
@@ -177,7 +176,7 @@ export default function MassPayPage() {
         description: `🎉 Check your transaction status 👉🏻`,
         duration: 10000,
         onClick: () => {
-          window.open(getScannerUrl(base.id, txHash));
+          window.open(getScannerUrl(chain.id, txHash));
         },
       });
     } catch (error) {

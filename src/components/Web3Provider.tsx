@@ -5,14 +5,14 @@ import { base, baseSepolia } from "wagmi/chains";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { CurrentConfig } from "@/config";
+import { rpcConfig } from "@/config";
 
 const config = createConfig(
   getDefaultConfig({
     chains: [base, baseSepolia],
     transports: {
-      [base.id]: fallback([http(CurrentConfig.rpc.base)]),
-      [baseSepolia.id]: fallback([http(CurrentConfig.rpc.baseSepolia)]),
+      [base.id]: fallback([http(rpcConfig(base))]),
+      [baseSepolia.id]: fallback([http(rpcConfig(baseSepolia))]),
     },
 
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,

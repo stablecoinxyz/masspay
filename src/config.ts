@@ -1,23 +1,29 @@
-import { PublicClient, WalletClient } from "viem";
+import { PublicClient, WalletClient, Chain } from "viem";
+import { localhost, base, baseSepolia } from "viem/chains";
 import { UseAccountReturnType } from "wagmi";
 
+export const chain = baseSepolia;
+
+export const rpcConfig = (chain: Chain) => {
+  switch (chain.id) {
+    case localhost.id:
+      return "http://localhost:8545";
+    case base.id:
+      return "https://base-rpc.publicnode.com";
+    case baseSepolia.id:
+      return "https://base-sepolia-rpc.publicnode.com";
+    default:
+      return "";
+  }
+};
+
 export interface TradeConfig {
-  rpc: {
-    local: string;
-    base: string;
-    baseSepolia: string;
-  };
   provider: PublicClient | null;
   wallet: WalletClient | null;
   account: UseAccountReturnType | null;
 }
 
 export const CurrentConfig: TradeConfig = {
-  rpc: {
-    local: "http://localhost:8545",
-    base: "https://base-rpc.publicnode.com",
-    baseSepolia: "https://base-sepolia-rpc.publicnode.com",
-  },
   provider: null,
   wallet: null,
   account: null,

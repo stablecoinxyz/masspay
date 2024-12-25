@@ -1,8 +1,8 @@
-import { BigintIsh, Token } from "@uniswap/sdk-core";
+import { Token } from "@uniswap/sdk-core";
 
 import erc20PermitAbi from "@/lib/abi/erc20Permit.abi";
 
-import { CurrentConfig } from "@/config";
+import { chain, CurrentConfig } from "@/config";
 import { SBC } from "@/lib/constants";
 import {
   publicClient,
@@ -23,7 +23,6 @@ import {
   WalletClient,
 } from "viem";
 
-import { base } from "viem/chains";
 import { entryPoint07Address, UserOperation } from "viem/account-abstraction";
 
 import { toSimpleSmartAccount } from "permissionless/accounts";
@@ -32,7 +31,7 @@ import { createSmartAccountClient } from "permissionless";
 async function prepareMassPay(txs: { to: string; value: number }[]) {
   const owner = createWalletClient({
     account: CurrentConfig.account!.address as Hex,
-    chain: base,
+    chain,
     transport: custom((window as any).ethereum),
   });
 
@@ -47,8 +46,8 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
 
   const smartAccountClient = createSmartAccountClient({
     account: simpleAccount,
-    chain: base,
-    bundlerTransport: http(pimlicoUrlForChain(base)),
+    chain,
+    bundlerTransport: http(pimlicoUrlForChain(chain)),
     paymaster: pimlicoClient,
     userOperation: {
       estimateFeesPerGas: async () => {
@@ -57,7 +56,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
     },
   });
 
-  const decimalPlaces = SBC.decimals;
+  const decimalPlaces = SBC[chain.network].decimals;
   const txnBigInts: { to: string; value: bigint }[] = txs.map((tx) => {
     return {
       to: tx.to,
@@ -74,7 +73,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
     });
     return {
       from: owner.account.address as Hex,
-      to: SBC.address as Hex,
+      to: SBC[chain.network].address as Hex,
       data: transferData,
     };
   });
@@ -90,7 +89,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
   // prepend the permit data instruction
   const signature = await getPermitSignature(
     owner,
-    SBC,
+    SBC[chain.network],
     CurrentConfig.account!.address as Hex,
     senderAddress,
     totalValue,
@@ -125,7 +124,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
   // prepend to the calls array
   calls.unshift({
     from: owner.account.address as Hex,
-    to: SBC.address as Hex,
+    to: SBC[chain.network].address as Hex,
     data: permitData,
   });
 
@@ -218,8 +217,8 @@ async function getPermitSignature(
   try {
     const domain = {
       name: token.name!,
-      version: getDomainVersion(token.name!, base.id),
-      chainId: base.id,
+      version: getDomainVersion(token.name!, chain.id),
+      chainId: chain.id,
       verifyingContract: token.address as Hex,
     };
 
