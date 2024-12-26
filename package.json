@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "author": "Stable Coin Inc.",
+  "engines": {
+    "node": "20.18.1"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
