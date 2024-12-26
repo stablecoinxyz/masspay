@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount, useBalance, useWalletClient } from "wagmi";
-import { Hex, isAddress } from "viem";
+import { Chain, Hex, isAddress } from "viem";
 import { ConnectWallet } from "@/components/ConnectWallet";
 import { MassPayCard } from "@/components/MassPayCard";
 import { ToastAction } from "@/components/ui/toast";
@@ -10,21 +10,23 @@ import { getScannerUrl } from "@/lib/providers";
 import { SBC } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { executeGaslessMassPay } from "@/lib/masspay";
-import { chain, CurrentConfig, dataConfig, type DataConfig } from "@/config";
+import { CurrentConfig, dataConfig, type DataConfig } from "@/config";
+import { base } from "viem/chains";
 
 export default function MassPayPage() {
   const account = useAccount();
-  const { address, isConnected } = account;
+  const { address, isConnected, chain } = account;
   const { data: wallet, isFetched } = useWalletClient();
+
+  const [currentChain, setCurrentChain] = useState<Chain>(base);
+  const [csvMode, setCsvMode] = useState<boolean>(false);
+  const [addrAmt, setAddrAmt] = useState<string>("");
+  const [csvData, setCsvData] = useState<DataConfig>(dataConfig);
 
   if (isFetched && isConnected) {
     CurrentConfig.wallet = wallet!;
     CurrentConfig.account = account!;
   }
-
-  const [csvMode, setCsvMode] = useState<boolean>(false);
-  const [addrAmt, setAddrAmt] = useState<string>("");
-  const [csvData, setCsvData] = useState<DataConfig>(dataConfig);
 
   const { toast } = useToast();
 
@@ -34,7 +36,7 @@ export default function MassPayPage() {
     isError: isSbcError,
   } = useBalance({
     address,
-    token: SBC[chain.network].address as Hex,
+    token: SBC[currentChain.id].address as Hex,
   });
 
   /**
@@ -75,6 +77,7 @@ export default function MassPayPage() {
     evt: React.FormEvent<HTMLElement>,
   ): Promise<void> {
     evt.preventDefault();
+
     if (!isValid(addrAmt)) {
       toast({
         title: "Invalid Input",
@@ -91,6 +94,7 @@ export default function MassPayPage() {
     });
 
     try {
+      const chain = currentChain;
       const txs = addrAmt.split("\n").map((line) => {
         const [addr, amt] = line.split(",");
         return {
@@ -99,7 +103,7 @@ export default function MassPayPage() {
         };
       });
 
-      const txHash = await executeGaslessMassPay(txs);
+      const txHash = await executeGaslessMassPay(txs, chain);
 
       if (txHash.startsWith("Error")) {
         toast({
@@ -111,7 +115,7 @@ export default function MassPayPage() {
         return; // exit early
       }
 
-      console.debug(getScannerUrl(chain.id, txHash));
+      console.debug(getScannerUrl((chain as Chain).id, txHash));
 
       toast({
         title: "Transaction Sent",
@@ -119,9 +123,9 @@ export default function MassPayPage() {
           <ToastAction altText="View on BaseScan">View Status</ToastAction>
         ),
         description: `🎉 Check your transaction status 👉🏻`,
-        duration: 10000,
+        duration: 20000,
         onClick: () => {
-          window.open(getScannerUrl(chain.id, txHash));
+          window.open(getScannerUrl((chain as Chain).id, txHash));
         },
       });
     } catch (error) {
@@ -135,6 +139,10 @@ export default function MassPayPage() {
 
     resetData();
   }
+
+  useEffect(() => {
+    setCurrentChain(chain as Chain);
+  }, [chain]);
 
   return (
     <main className="px-4 pb-10 min-h-[100vh] min-w-[600] flex items-top justify-center container max-w-screen-lg mx-auto">

@@ -38,8 +38,6 @@ export function PreviewDialog({
     return totalAmtToSend;
   }
 
-  if (!addrAmt) return null;
-
   return (
     <Dialog>
       <DialogTrigger asChild>

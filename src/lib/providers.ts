@@ -1,13 +1,14 @@
-import { chain, rpcConfig } from "@/config";
+import { rpcConfig } from "@/config";
 import { Chain, createPublicClient, http, PublicClient } from "viem";
 import { baseSepolia, base } from "viem/chains";
 import { entryPoint07Address } from "viem/account-abstraction";
 import { createPimlicoClient } from "permissionless/clients/pimlico";
 
-export const publicClient = createPublicClient({
-  chain,
-  transport: http(rpcConfig(chain)),
-}) as PublicClient;
+export const getPublicClient = (chain: Chain) =>
+  createPublicClient({
+    chain,
+    transport: http(rpcConfig(chain)),
+  }) as PublicClient;
 
 export function getScannerUrl(chainId: number, transactionHash: string) {
   switch (chainId) {
@@ -28,10 +29,12 @@ export function pimlicoUrlForChain(chain: Chain) {
   }
 }
 
-export const pimlicoClient = createPimlicoClient({
-  transport: http(pimlicoUrlForChain(chain)),
-  entryPoint: {
-    address: entryPoint07Address,
-    version: "0.7",
-  },
-});
+export function getPimlicoClient(chain: Chain) {
+  return createPimlicoClient({
+    transport: http(pimlicoUrlForChain(chain)),
+    entryPoint: {
+      address: entryPoint07Address,
+      version: "0.7",
+    },
+  });
+}

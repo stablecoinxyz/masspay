@@ -24,13 +24,13 @@ const SBC_BASE_SEPOLIA = new Token(
 );
 
 export const SBC = {
-  base: SBC_BASE,
-  "base-sepolia": SBC_BASE_SEPOLIA,
+  [`${base.id}`]: SBC_BASE,
+  [`${baseSepolia.id}`]: SBC_BASE_SEPOLIA,
 };
 
 export const SBC_CONTRACT = {
-  base: SBC_CONTRACT_ADDRESS,
-  baseSepolia: SBC_BASE_SEPOLIA_CONTRACT_ADDRESS,
+  [`${base.id}`]: SBC_CONTRACT_ADDRESS,
+  [`${baseSepolia.id}`]: SBC_BASE_SEPOLIA_CONTRACT_ADDRESS,
 };
 
 export const MAX_FEE_PER_GAS = 100000000000;

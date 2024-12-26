@@ -2,9 +2,11 @@ import { PublicClient, WalletClient, Chain } from "viem";
 import { localhost, base, baseSepolia } from "viem/chains";
 import { UseAccountReturnType } from "wagmi";
 
-export const chain = baseSepolia;
+export function rpcConfig(chain: Chain) {
+  if (!chain) {
+    return "";
+  }
 
-export const rpcConfig = (chain: Chain) => {
   switch (chain.id) {
     case localhost.id:
       return "http://localhost:8545";
@@ -15,7 +17,7 @@ export const rpcConfig = (chain: Chain) => {
     default:
       return "";
   }
-};
+}
 
 export interface TradeConfig {
   provider: PublicClient | null;

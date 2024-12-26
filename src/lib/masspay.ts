@@ -2,11 +2,11 @@ import { Token } from "@uniswap/sdk-core";
 
 import erc20PermitAbi from "@/lib/abi/erc20Permit.abi";
 
-import { chain, CurrentConfig } from "@/config";
+import { CurrentConfig } from "@/config";
 import { SBC } from "@/lib/constants";
 import {
-  publicClient,
-  pimlicoClient,
+  getPublicClient,
+  getPimlicoClient,
   pimlicoUrlForChain,
 } from "@/lib/providers";
 import { fromReadableAmount } from "@/lib/extras";
@@ -18,7 +18,7 @@ import {
   erc20Abi,
   Hex,
   http,
-  parseAbi,
+  Chain,
   parseSignature,
   WalletClient,
 } from "viem";
@@ -28,7 +28,10 @@ import { entryPoint07Address, UserOperation } from "viem/account-abstraction";
 import { toSimpleSmartAccount } from "permissionless/accounts";
 import { createSmartAccountClient } from "permissionless";
 
-async function prepareMassPay(txs: { to: string; value: number }[]) {
+async function prepareMassPay(
+  txs: { to: string; value: number }[],
+  chain: Chain,
+) {
   const owner = createWalletClient({
     account: CurrentConfig.account!.address as Hex,
     chain,
@@ -36,7 +39,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
   });
 
   const simpleAccount = await toSimpleSmartAccount({
-    client: publicClient,
+    client: getPublicClient(chain),
     owner: owner,
     entryPoint: {
       address: entryPoint07Address,
@@ -48,15 +51,15 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
     account: simpleAccount,
     chain,
     bundlerTransport: http(pimlicoUrlForChain(chain)),
-    paymaster: pimlicoClient,
+    paymaster: getPimlicoClient(chain),
     userOperation: {
       estimateFeesPerGas: async () => {
-        return (await pimlicoClient.getUserOperationGasPrice()).fast;
+        return (await getPimlicoClient(chain).getUserOperationGasPrice()).fast;
       },
     },
   });
 
-  const decimalPlaces = SBC[chain.network].decimals;
+  const decimalPlaces = SBC[chain.id].decimals;
   const txnBigInts: { to: string; value: bigint }[] = txs.map((tx) => {
     return {
       to: tx.to,
@@ -73,7 +76,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
     });
     return {
       from: owner.account.address as Hex,
-      to: SBC[chain.network].address as Hex,
+      to: SBC[chain.id].address as Hex,
       data: transferData,
     };
   });
@@ -88,8 +91,9 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
 
   // prepend the permit data instruction
   const signature = await getPermitSignature(
+    chain,
     owner,
-    SBC[chain.network],
+    SBC[chain.id],
     CurrentConfig.account!.address as Hex,
     senderAddress,
     totalValue,
@@ -124,7 +128,7 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
   // prepend to the calls array
   calls.unshift({
     from: owner.account.address as Hex,
-    to: SBC[chain.network].address as Hex,
+    to: SBC[chain.id].address as Hex,
     data: permitData,
   });
 
@@ -136,9 +140,10 @@ async function prepareMassPay(txs: { to: string; value: number }[]) {
 
 export async function executeGaslessMassPay(
   txs: { to: string; value: number }[],
+  chain: Chain,
 ): Promise<string> {
   try {
-    const { smartAccountClient, calls } = await prepareMassPay(txs);
+    const { smartAccountClient, calls } = await prepareMassPay(txs, chain);
 
     if (calls.length === 0) {
       return "Error preparing mass pay";
@@ -161,9 +166,10 @@ export async function executeGaslessMassPay(
 
 export async function estimateGasForMassPay(
   txs: { to: string; value: number }[],
+  chain: Chain,
 ): Promise<bigint> {
   try {
-    const { smartAccountClient, calls } = await prepareMassPay(txs);
+    const { smartAccountClient, calls } = await prepareMassPay(txs, chain);
 
     if (calls.length === 0) {
       return 0n;
@@ -178,7 +184,7 @@ export async function estimateGasForMassPay(
       // },
     })) as UserOperation<"0.7">;
 
-    const block = await publicClient.getBlock();
+    const block = await getPublicClient(chain).getBlock();
 
     const gasPrice = min(
       userOperation.maxFeePerGas,
@@ -207,6 +213,7 @@ function min(a: bigint, b: bigint): bigint {
 }
 
 async function getPermitSignature(
+  chain: Chain,
   wallet: WalletClient,
   token: Token,
   owner: string,
@@ -232,7 +239,7 @@ async function getPermitSignature(
       ],
     };
 
-    const nonce = await publicClient.readContract({
+    const nonce = await getPublicClient(chain).readContract({
       address: token.address as Hex,
       abi: erc20PermitAbi,
       functionName: "nonces",
