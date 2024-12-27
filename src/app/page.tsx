@@ -11,13 +11,24 @@ import { SBC } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { executeGaslessMassPay } from "@/lib/masspay";
 import { CurrentConfig, dataConfig, type DataConfig } from "@/config";
-import { base } from "viem/chains";
+import { base, baseSepolia } from "viem/chains";
 
 export default function MassPayPage() {
   const account = useAccount();
   const { address, isConnected, chain } = account;
   const { data: wallet, isFetched } = useWalletClient();
 
+  const [sbcBalance, setSbcBalance] = useState<{
+    decimals: number;
+    formatted: string;
+    symbol: string;
+    value: bigint;
+  }>({
+    decimals: 0,
+    formatted: "0",
+    symbol: "SBC",
+    value: BigInt(0),
+  });
   const [currentChain, setCurrentChain] = useState<Chain>(base);
   const [csvMode, setCsvMode] = useState<boolean>(false);
   const [addrAmt, setAddrAmt] = useState<string>("");
@@ -31,12 +42,21 @@ export default function MassPayPage() {
   const { toast } = useToast();
 
   const {
-    data: sbcBalance,
-    isLoading: isSbcLoading,
-    isError: isSbcError,
+    data: sbcBaseBalance,
+    isLoading: isSbcBaseLoading,
+    isError: isSbcBaseError,
   } = useBalance({
     address,
-    token: SBC[currentChain.id].address as Hex,
+    token: SBC[base.id].address as Hex,
+  });
+
+  const {
+    data: sbcBaseSepoliaBalance,
+    isLoading: isSbcBaseSepoliaLoading,
+    isError: isSbcBaseSepoliaError,
+  } = useBalance({
+    address,
+    token: SBC[baseSepolia.id].address as Hex,
   });
 
   /**
@@ -144,6 +164,15 @@ export default function MassPayPage() {
     setCurrentChain(chain as Chain);
   }, [chain]);
 
+  useEffect(() => {
+    setSbcBalance(sbcBaseBalance!);
+    if (chain?.id === base.id) {
+      setSbcBalance(sbcBaseBalance!);
+    } else if (chain?.id === baseSepolia.id) {
+      setSbcBalance(sbcBaseSepoliaBalance!);
+    }
+  }, [sbcBaseBalance, sbcBaseSepoliaBalance]);
+
   return (
     <main className="px-4 pb-10 min-h-[100vh] min-w-[600] flex items-top justify-center container max-w-screen-lg mx-auto">
       <div className="w-3/5 min-w-[540px]">
@@ -247,7 +276,7 @@ export default function MassPayPage() {
                 <span className="ml-2 mt-1">SBC</span>
               </td>
               <td className="px-4 pb-4 text-lg text-foreground text-center">
-                {sbcBalance && Number(sbcBalance.formatted).toFixed(3)}
+                {Number(sbcBalance!.formatted).toFixed(3)}
               </td>
             </tr>
           </tbody>
