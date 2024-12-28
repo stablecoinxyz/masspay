@@ -107,6 +107,15 @@ export default function MassPayPage() {
       return;
     }
 
+    if (addrAmt.length > 200) {
+      toast({
+        title: "Too many recipients",
+        description: `MassPay supports up to 200 recipients per transaction. Please reduce the number of recipients and try again.`,
+        duration: 5000,
+      });
+      return;
+    }
+
     toast({
       title: "Preparing MassPay",
       description: `Please wait while we process your transaction...`,

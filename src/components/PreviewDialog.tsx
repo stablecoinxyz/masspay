@@ -41,7 +41,10 @@ export function PreviewDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className={btnClasses} disabled={!isValid(addrAmt)}>
+        <button
+          className={btnClasses}
+          disabled={!isValid(addrAmt) || addrAmt.length > 200}
+        >
           Proceed to Payment
         </button>
       </DialogTrigger>

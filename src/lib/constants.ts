@@ -1,5 +1,4 @@
-import { ChainId, Token } from "@uniswap/sdk-core";
-import { Chain } from "viem";
+import { Token } from "@uniswap/sdk-core";
 import { base, baseSepolia } from "viem/chains";
 
 // Currencies and Tokens
