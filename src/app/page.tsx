@@ -107,7 +107,7 @@ export default function MassPayPage() {
       return;
     }
 
-    if (addrAmt.length > 200) {
+    if (addrAmt.split("\n").length > 200) {
       toast({
         title: "Too many recipients",
         description: `MassPay supports up to 200 recipients per transaction. Please reduce the number of recipients and try again.`,
@@ -180,7 +180,7 @@ export default function MassPayPage() {
     } else if (chain?.id === baseSepolia.id) {
       setSbcBalance(sbcBaseSepoliaBalance!);
     }
-  }, [sbcBaseBalance, sbcBaseSepoliaBalance]);
+  }, [sbcBaseBalance, sbcBaseSepoliaBalance, chain]);
 
   return (
     <main className="px-4 pb-10 min-h-[100vh] min-w-[600] flex items-top justify-center container max-w-screen-lg mx-auto">

@@ -39,7 +39,10 @@ const MassPayCard = memo(
           >
             <button
               className={`text-lg ${!csvMode ? "text-cardForeground" : ""}`}
-              onClick={() => setCsvMode(false)}
+              onClick={() => {
+                setCsvMode(false);
+                resetData();
+              }}
             >
               Manual
             </button>
@@ -49,7 +52,10 @@ const MassPayCard = memo(
           >
             <button
               className={`text-lg ${csvMode ? "text-cardForeground" : ""}`}
-              onClick={() => setCsvMode(true)}
+              onClick={() => {
+                setCsvMode(true);
+                resetData();
+              }}
             >
               Upload CSV
             </button>
