@@ -107,6 +107,22 @@ export default function MassPayPage() {
       return;
     }
 
+    const totalAmtToSend = addrAmt
+      .split("\n")
+      .map((line) => line.split(",")[1])
+      .reduce((acc, val) => acc + parseFloat(val), 0);
+
+    if (totalAmtToSend > parseFloat(sbcBalance.formatted)) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You do not have enough balance to send ${totalAmtToSend.toFixed(
+          6,
+        )} SBC.`,
+        duration: 5000,
+      });
+      return;
+    }
+
     if (addrAmt.split("\n").length > 200) {
       toast({
         title: "Too many recipients",

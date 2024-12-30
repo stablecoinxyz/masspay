@@ -28,7 +28,12 @@ const MassPayCard = memo(
     resetData: () => void;
     csvData: DataConfig;
     setCsvData: (data: DataConfig) => void;
-    sbcBalance: any;
+    sbcBalance: {
+      decimals: number;
+      formatted: string;
+      symbol: string;
+      value: bigint;
+    };
     handleSubmit: any;
   }) => {
     return (

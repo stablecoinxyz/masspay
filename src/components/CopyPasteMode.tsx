@@ -22,7 +22,12 @@ const CopyPasteMode = memo(
     onChange: (value: string) => void;
     resetData: () => void;
     handleSubmit: any;
-    sbcBalance: any;
+    sbcBalance: {
+      decimals: number;
+      formatted: string;
+      symbol: string;
+      value: bigint;
+    };
     isValid: (addrAmt: string) => boolean;
   }) => {
     const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

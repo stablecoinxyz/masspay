@@ -24,7 +24,12 @@ const CsvMode = memo(
     setCsvData: (data: DataConfig) => void;
     isConnected: boolean;
     isValid: (addrAmt: string) => boolean;
-    sbcBalance: any;
+    sbcBalance: {
+      decimals: number;
+      formatted: string;
+      symbol: string;
+      value: bigint;
+    };
     handleSubmit: any;
   }) => {
     const handleChangeAddrAmt = (data: string) => {

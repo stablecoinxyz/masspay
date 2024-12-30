@@ -19,7 +19,12 @@ export function PreviewDialog({
   isValid,
 }: {
   addrAmt: string;
-  sbcBalance: any;
+  sbcBalance: {
+    decimals: number;
+    formatted: string;
+    symbol: string;
+    value: bigint;
+  };
   resetData: () => void;
   handleSubmit: any;
   isValid: (addrAmt: string) => boolean;
@@ -123,13 +128,27 @@ export function PreviewDialog({
         </div>
 
         <DialogFooter>
-          <button
-            type="button"
-            className={btnClasses}
-            onClick={async (e) => await handleSubmit(e)}
-          >
-            Send
-          </button>
+          {sbcBalance &&
+          Number(sbcBalance.formatted) < Number(getTotalAmtToSend(addrAmt)) ? (
+            <div className="text-red-500">
+              Insufficient balance to complete this transaction. Please adjust
+              your payment details and try again.
+            </div>
+          ) : (
+            <button
+              type="button"
+              className={btnClasses}
+              onClick={async (e) => await handleSubmit(e)}
+              disabled={
+                !isValid(addrAmt) ||
+                addrAmt.split("\n").length > 200 ||
+                parseFloat(sbcBalance.value.toString()) <
+                  parseFloat(getTotalAmtToSend(addrAmt))
+              }
+            >
+              Send
+            </button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
