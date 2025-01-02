@@ -28,7 +28,7 @@ export default function RootLayout({
 }
 
 export const metadata: Metadata = {
-  title: "Stable Coin | MassPay",
-  description: "",
-  keywords: "",
+  title: "SBC MassPay",
+  description: "Send mass payouts for free using SBC's gasless MassPay",
+  keywords: "SBC, Stable Coin, stablecoins, masspay, payouts, crypto",
 };
