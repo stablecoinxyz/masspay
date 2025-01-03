@@ -31,4 +31,30 @@ export const metadata: Metadata = {
   title: "SBC MassPay",
   description: "Send mass payouts for free using SBC's gasless MassPay",
   keywords: "SBC, Stable Coin, stablecoins, masspay, payouts, crypto",
+  twitter: {
+    card: "summary",
+    site: "@stablecoinxyz",
+    creator: "@stablecoinxyz",
+    title: "SBC MassPay",
+    description: "Send mass payouts for free using SBC's gasless MassPay",
+    images: [
+      {
+        url: "https://masspay.stablecoin.xyz/sbc-16x9.png",
+        alt: "SBC MassPay",
+      },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    url: "https://masspay.stablecoin.xyz",
+    siteName: "SBC MassPay",
+    title: "SBC MassPay",
+    description: "Send mass payouts for free using SBC's gasless MassPay",
+    images: [
+      {
+        url: "https://masspay.stablecoin.xyz/sbc-16x9.png",
+        alt: "SBC MassPay",
+      },
+    ],
+  },
 };
