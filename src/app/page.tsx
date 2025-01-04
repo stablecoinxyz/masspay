@@ -233,8 +233,9 @@ export default function MassPayPage() {
           MassPay
         </h1>
         <div className="flex flex-col items-center mt-2 text-center">
-          Send payments to multiple recipients with zero gas fees, powered by
-          Stablecoin.xyz. We support up to 200 recipients per transaction.
+          Send payments to multiple recipients with zero gas fees on Base,
+          powered by SBC. This application supports sending up to 200 transfers
+          at a time.
         </div>
       </header>
     );
