@@ -26,6 +26,8 @@ To run this project, you will need to add the following environment variables to
 - `NEXT_PUBLIC_SPONSORSHIP_POLICY_ID` - create a policy from the [Pimlico dashboard](https://dashboard.pimlico.io/) and get its ID
 - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - create a project and get its ID from the [WalletConnect dashboard](https://cloud.reown.com/)
 
+To run locally, you'll need Pimlico API credentials for the Paymaster service. We are happy to provide credentials for you to install MassPay and test locally. Please connect with us on our SBC Telegram group: @stablecoin_xyz. Pimlico also provides a free tier if you prefer to sign up for your own account directly with them.
+
 ## Run locally
 
 Install dependencies
@@ -39,6 +41,10 @@ Start development server after setting up the environment variables
 ```bash
 npm run dev
 ```
+
+## For more information
+
+Connect with us on X and Telegram @stablecoin_xyz. 
 
 ## Author
 
