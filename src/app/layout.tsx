@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     description: "Send mass payouts for free using SBC's gasless MassPay",
     images: [
       {
-        url: "https://masspay.stablecoin.xyz/sbc-16x9.png",
+        url: "https://masspay.stablecoin.xyz/MassOpengraph.png",
         alt: "SBC MassPay",
       },
     ],
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     description: "Send mass payouts for free using SBC's gasless MassPay",
     images: [
       {
-        url: "https://masspay.stablecoin.xyz/sbc-16x9.png",
+        url: "https://masspay.stablecoin.xyz/MassOpengraph.png",
         alt: "SBC MassPay",
       },
     ],
