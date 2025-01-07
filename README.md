@@ -20,13 +20,13 @@ Currently, the project is set up to airdrop SBC tokens to 200 addresses at a tim
 
 ## Environment Variables
 
-To run this project, you will need to add the following environment variables to your .env file:
+To run this project locally, you will need to add the following environment variables to your .env file.
+
+This early version of MassPay was built using Pimlico's paymaster service. We are happy to provide API credentials for you to install MassPay and test locally. Please connect with us on our SBC Telegram group: [@stablecoin_xyz](https://t.me/stablecoin_xyz). Pimlico also provides a free tier if you prefer to sign up for your own account.
 
 - `NEXT_PUBLIC_PIMLICO_API_KEY` - get your API key from the [Pimlico dashboard](https://dashboard.pimlico.io/)
 - `NEXT_PUBLIC_SPONSORSHIP_POLICY_ID` - create a policy from the [Pimlico dashboard](https://dashboard.pimlico.io/) and get its ID
 - `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - create a project and get its ID from the [WalletConnect dashboard](https://cloud.reown.com/)
-
-To run locally, you'll need Pimlico API credentials for the Paymaster service. We are happy to provide credentials for you to install MassPay and test locally. Please connect with us on our SBC Telegram group: @stablecoin_xyz. Pimlico also provides a free tier if you prefer to sign up for your own account directly with them.
 
 ## Run locally
 
