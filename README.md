@@ -36,7 +36,7 @@ Install dependencies
 npm install
 ```
 
-Start development server after setting up the environment variables
+Start your development server after setting up the environment variables.
 
 ```bash
 npm run dev
