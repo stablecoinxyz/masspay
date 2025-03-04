@@ -11,8 +11,8 @@ const config = createConfig(
   getDefaultConfig({
     chains: [base, baseSepolia],
     transports: {
-      [base.id]: fallback([http(rpcConfig(base))]),
-      [baseSepolia.id]: fallback([http(rpcConfig(baseSepolia))]),
+      [base.id]: fallback([http(rpcConfig(base), { timeout: 240_000 })]),
+      [baseSepolia.id]: fallback([http(rpcConfig(baseSepolia), { timeout: 240_000 })]),
     },
 
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,

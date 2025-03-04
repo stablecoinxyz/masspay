@@ -10,6 +10,7 @@ import { getScannerUrl } from "@/lib/providers";
 import { SBC } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
 import { executeGaslessMassPay } from "@/lib/masspay";
+import { executeGaslessMassPay as executeGaslessMassPayTestnet } from "@/lib/masspay-testnet";
 import { CurrentConfig, dataConfig, type DataConfig } from "@/config";
 import { base, baseSepolia } from "viem/chains";
 
@@ -98,6 +99,15 @@ export default function MassPayPage() {
   ): Promise<void> {
     evt.preventDefault();
 
+    let chain = currentChain;
+    if (!chain) {
+      toast({
+        title: "No chain selected",
+        description: `Please select a chain and try again.`,
+        duration: 2000,
+      });
+    }
+
     if (!isValid(addrAmt)) {
       toast({
         title: "Invalid Input",
@@ -123,7 +133,8 @@ export default function MassPayPage() {
       return;
     }
 
-    if (addrAmt.split("\n").length > 200) {
+    // We're using Pimlico's paymaster on Base, so we can only send up to 200 recipients per transaction
+    if (chain.id === base.id && addrAmt.split("\n").length > 200) {
       toast({
         title: "Too many recipients",
         description: `MassPay supports up to 200 recipients per transaction. Please reduce the number of recipients and try again.`,
@@ -134,12 +145,11 @@ export default function MassPayPage() {
 
     toast({
       title: "Preparing MassPay",
-      description: `Please wait while we process your transaction...`,
-      duration: 8000,
+      description: `Please wait up to 2 minutes while we process your transaction...`,
+      duration: 50000,
     });
 
     try {
-      const chain = currentChain;
       const txs = addrAmt.split("\n").map((line) => {
         const [addr, amt] = line.split(",");
         return {
@@ -148,15 +158,20 @@ export default function MassPayPage() {
         };
       });
 
-      const txHash = await executeGaslessMassPay(txs, chain);
+      let txHash: string;
+      if (chain.id === baseSepolia.id) {
+        txHash = await executeGaslessMassPayTestnet(txs, chain);
+      } else {
+        txHash = await executeGaslessMassPay(txs, chain);
+      }
 
-      if (txHash.startsWith("Error")) {
+      if (txHash.startsWith("Error") || !txHash.startsWith("0x")) {
         toast({
           title: "Something went wrong",
           description: `There was an error sending your transaction. ${txHash}.`,
           duration: 7000,
         });
-
+        console.error(txHash);
         return; // exit early
       }
 
@@ -167,8 +182,8 @@ export default function MassPayPage() {
         action: (
           <ToastAction altText="View on BaseScan">View Status</ToastAction>
         ),
-        description: `🎉 Check your transaction status 👉🏻`,
-        duration: 20000,
+        description: `🎉 Check your transaction status 👉🏻. This may take up to 2 minutes to confirm.`,
+        duration: 30000,
         onClick: () => {
           window.open(getScannerUrl((chain as Chain).id, txHash));
         },
@@ -227,7 +242,7 @@ export default function MassPayPage() {
 
   function Header() {
     return (
-      <header className="flex flex-col items-center my-20 mb-6">
+      <header className="flex flex-col items-center my-20 mb-6 relative">
         <Image src="/globus.svg" width={42} height={42} alt="Globe" />
         <h1 className="my-4 text-3xl font-semibold tracking-tighter">
           MassPay
@@ -272,8 +287,17 @@ export default function MassPayPage() {
           {wallet && sbcBalance && <BalanceTable />}
 
           <div className="ml-auto absolute top-[3.8rem] right-6">
-            <ConnectWallet />
+              <ConnectWallet />
           </div>
+          { chain?.id === base.id && (
+          <div className="absolute -right-72 top-0 p-3 bg-slate-800 rounded-lg border border-slate-700 shadow-md max-w-[250px]">
+            <div className="text-sm text-mutedForeground">
+              <p className="mb-2 font-medium text-secondary"><span>💡</span> Try our custom paymaster</p>
+              <p className="mb-2"><span>&larr;</span> Switch to Base Sepolia to experience our custom paymaster experience.</p>
+              
+            </div>
+          </div>
+          )}
         </div>
       </div>
     );
