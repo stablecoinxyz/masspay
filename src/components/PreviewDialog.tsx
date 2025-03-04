@@ -48,7 +48,7 @@ export function PreviewDialog({
       <DialogTrigger asChild>
         <button
           className={btnClasses}
-          disabled={!isValid(addrAmt) || addrAmt.split("\n").length > 200}
+          disabled={!isValid(addrAmt) /*|| addrAmt.split("\n").length > 200*/}
         >
           Proceed to Payment
         </button>
@@ -140,10 +140,10 @@ export function PreviewDialog({
               className={btnClasses}
               onClick={async (e) => await handleSubmit(e)}
               disabled={
-                !isValid(addrAmt) ||
-                addrAmt.split("\n").length > 200 ||
-                parseFloat(sbcBalance.value.toString()) <
-                  parseFloat(getTotalAmtToSend(addrAmt))
+                !isValid(addrAmt) //||
+                // addrAmt.split("\n").length > 200 ||
+                // parseFloat(sbcBalance.value.toString()) <
+                //   parseFloat(getTotalAmtToSend(addrAmt))
               }
             >
               Send

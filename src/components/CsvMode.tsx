@@ -77,12 +77,12 @@ const CsvMode = memo(
             {csvData && csvData.length > 0 && isValid(addrAmt) && (
               <div className="w-full text-center text-lg">
                 🔎 {csvData.length} rows of data found.{" "}
-                {csvData.length > 200 && (
+                {/* {csvData.length > 200 && (
                   <span className="text-red-500">
                     Masspay supports up to 200 recipients. Please adjust your
                     data and try again.
                   </span>
-                )}
+                )} */}
               </div>
             )}
             {addrAmt && !isValid(addrAmt) && (

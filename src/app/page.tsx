@@ -123,19 +123,19 @@ export default function MassPayPage() {
       return;
     }
 
-    if (addrAmt.split("\n").length > 200) {
-      toast({
-        title: "Too many recipients",
-        description: `MassPay supports up to 200 recipients per transaction. Please reduce the number of recipients and try again.`,
-        duration: 5000,
-      });
-      return;
-    }
+    // if (addrAmt.split("\n").length > 200) {
+    //   toast({
+    //     title: "Too many recipients",
+    //     description: `MassPay supports up to 200 recipients per transaction. Please reduce the number of recipients and try again.`,
+    //     duration: 5000,
+    //   });
+    //   return;
+    // }
 
     toast({
       title: "Preparing MassPay",
-      description: `Please wait while we process your transaction...`,
-      duration: 8000,
+      description: `Please wait up to 2 minutes while we process your transaction...`,
+      duration: 50000,
     });
 
     try {
@@ -150,13 +150,13 @@ export default function MassPayPage() {
 
       const txHash = await executeGaslessMassPay(txs, chain);
 
-      if (txHash.startsWith("Error")) {
+      if (txHash.startsWith("Error") || !txHash.startsWith("0x")) {
         toast({
           title: "Something went wrong",
           description: `There was an error sending your transaction. ${txHash}.`,
           duration: 7000,
         });
-
+        console.error(txHash);
         return; // exit early
       }
 
@@ -167,8 +167,8 @@ export default function MassPayPage() {
         action: (
           <ToastAction altText="View on BaseScan">View Status</ToastAction>
         ),
-        description: `🎉 Check your transaction status 👉🏻`,
-        duration: 20000,
+        description: `🎉 Check your transaction status 👉🏻. This may take up to 2 minutes to confirm.`,
+        duration: 30000,
         onClick: () => {
           window.open(getScannerUrl((chain as Chain).id, txHash));
         },

@@ -33,7 +33,7 @@ import { toSimpleSmartAccount } from "permissionless/accounts";
 import { createSmartAccountClient } from "permissionless";
 
 const PAYMASTER_SERVER_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
-const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDER_URL!;
+const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
 
 async function prepareMassPay(
   txs: { to: string; value: number }[],
@@ -45,6 +45,8 @@ async function prepareMassPay(
     transport: custom((window as any).ethereum),
   });
 
+  console.log(`Chain: ${chain.id}`);
+
   const simpleAccount = await toSimpleSmartAccount({
     client: getPublicClient(chain),
     owner: owner,
@@ -54,15 +56,18 @@ async function prepareMassPay(
     },
   });
 
+  console.log(`simpleAccount.address: ${simpleAccount.address}`);
+
   // custom paymaster
   const paymaster = createPaymasterClient({
     transport: http(PAYMASTER_SERVER_URL),
   });
-
+  
   const smartAccountClient = createSmartAccountClient({
     account: simpleAccount,
     chain,
-    bundlerTransport: http(pimlicoUrlForChain(chain)),
+    // bundlerTransport: http(pimlicoUrlForChain(chain)),
+    bundlerTransport: http(BUNDLER_SERVER_URL),
     paymaster,
     userOperation: {
       estimateFeesPerGas: async () => {
@@ -87,7 +92,6 @@ async function prepareMassPay(
       args: [owner.account.address as Hex, tx.to as Hex, tx.value],
     });
     return {
-      from: owner.account.address as Hex,
       to: SBC[chain.id].address as Hex,
       data: transferData,
     };
@@ -101,12 +105,20 @@ async function prepareMassPay(
   // get the sender (counterfactual) address of the SimpleAccount
   const senderAddress = simpleAccount.address;
 
+  console.log(`Getting permit signature for: ${senderAddress}, with parameters 
+    chain: ${chain.id}
+    owner: ${owner.account.address}
+    token: ${SBC[chain.id].address}
+    senderAddress: ${senderAddress}
+    totalValue: ${totalValue}
+    deadline: ${deadline}
+    `);
   // prepend the permit data instruction
   const signature = await getPermitSignature(
     chain,
     owner,
     SBC[chain.id],
-    CurrentConfig.account!.address as Hex,
+    owner.account.address as Hex,
     senderAddress,
     totalValue,
     deadline,
@@ -122,12 +134,14 @@ async function prepareMassPay(
 
   const { r, s, v } = parseSignature(signature);
 
+  console.log(`Permit signature: ${signature}`);
+
   // encode the permit transaction calldata
   const permitData = encodeFunctionData({
     abi: erc20PermitAbi,
     functionName: "permit",
     args: [
-      CurrentConfig.account!.address as Hex,
+      owner.account.address as Hex,
       senderAddress,
       totalValue,
       deadline,
@@ -137,9 +151,10 @@ async function prepareMassPay(
     ],
   });
 
+  console.log(`Permit data: ${permitData}`);
+
   // prepend to the calls array
   calls.unshift({
-    from: owner.account.address as Hex,
     to: SBC[chain.id].address as Hex,
     data: permitData,
   });
@@ -163,14 +178,18 @@ export async function executeGaslessMassPay(
 
     // send the batch call transaction to the SimpleAccount,
     // using your gas credits policy ID
-    const userOpHash = await smartAccountClient.sendTransaction({
+    const userOpHash = await smartAccountClient.sendUserOperation({
       calls,
-      paymasterContext: {
-        sponsorshipPolicyId: process.env.NEXT_PUBLIC_SPONSORSHIP_POLICY_ID!,
-      },
     });
 
-    return userOpHash;
+    const receipt = await smartAccountClient.waitForUserOperationReceipt({
+      hash: userOpHash,
+      pollingInterval: 1000,
+      timeout: 100000,
+      retryCount: 10,
+    });
+
+    return receipt.userOpHash;
   } catch (e) {
     return (e as any).message;
   }
