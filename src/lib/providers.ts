@@ -38,3 +38,25 @@ export function getPimlicoClient(chain: Chain) {
     },
   });
 }
+
+export function getPaymasterServiceUrl(chain: Chain) {
+  switch (chain.id) {
+    case baseSepolia.id:
+      return process.env.NEXT_PUBLIC_BASE_SEPOLIA_PAYMASTER_SERVICE_URL!;
+    case base.id:
+      return process.env.NEXT_PUBLIC_BASE_PAYMASTER_SERVICE_URL!;
+    default:
+      return `chain ${chain.name} not supported`;
+  }
+}
+
+export function getBundlerUrl(chain: Chain) {
+  switch (chain.id) {
+    case baseSepolia.id:
+      return process.env.NEXT_PUBLIC_BASE_SEPOLIA_BUNDLER_URL!;
+    case base.id:
+      return process.env.NEXT_PUBLIC_BASE_BUNDLER_URL!;
+    default:
+      return `chain ${chain.name} not supported`;
+  }
+}

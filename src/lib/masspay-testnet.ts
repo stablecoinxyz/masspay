@@ -7,6 +7,8 @@ import { SBC } from "@/lib/constants";
 import {
   getPublicClient,
   getPimlicoClient,
+  getPaymasterServiceUrl,
+  getBundlerUrl,
 } from "@/lib/providers";
 import { fromReadableAmount } from "@/lib/extras";
 
@@ -27,8 +29,8 @@ import { entryPoint07Address, UserOperation, createPaymasterClient } from "viem/
 import { toSimpleSmartAccount } from "permissionless/accounts";
 import { createSmartAccountClient } from "permissionless";
 
-const PAYMASTER_SERVICE_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
-const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
+// const PAYMASTER_SERVICE_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
+// const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
 
 async function prepareMassPay(
   txs: { to: string; value: number }[],
@@ -52,13 +54,13 @@ async function prepareMassPay(
   });
 
   const paymaster = createPaymasterClient({
-    transport: http(PAYMASTER_SERVICE_URL),
+    transport: http(getPaymasterServiceUrl(chain)),
   });
 
   const smartAccountClient = createSmartAccountClient({
     account: simpleAccount,
     chain,
-    bundlerTransport: http(BUNDLER_SERVER_URL),
+    bundlerTransport: http(getBundlerUrl(chain)),
     paymaster,
     userOperation: {
       estimateFeesPerGas: async () => {

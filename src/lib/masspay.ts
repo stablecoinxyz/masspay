@@ -8,6 +8,8 @@ import {
   getPublicClient,
   getPimlicoClient,
   pimlicoUrlForChain,
+  getBundlerUrl,
+  getPaymasterServiceUrl,
 } from "@/lib/providers";
 import { fromReadableAmount } from "@/lib/extras";
 
@@ -23,7 +25,7 @@ import {
   WalletClient,
 } from "viem";
 
-import { entryPoint07Address, UserOperation } from "viem/account-abstraction";
+import { createPaymasterClient, entryPoint07Address, UserOperation } from "viem/account-abstraction";
 
 import { toSimpleSmartAccount } from "permissionless/accounts";
 import { createSmartAccountClient } from "permissionless";
@@ -47,11 +49,15 @@ async function prepareMassPay(
     },
   });
 
+  const paymaster = createPaymasterClient({
+    transport: http(getPaymasterServiceUrl(chain)),
+  });
+
   const smartAccountClient = createSmartAccountClient({
     account: simpleAccount,
     chain,
-    bundlerTransport: http(pimlicoUrlForChain(chain)),
-    paymaster: getPimlicoClient(chain),
+    bundlerTransport: http(getBundlerUrl(chain)),
+    paymaster,
     userOperation: {
       estimateFeesPerGas: async () => {
         return (await getPimlicoClient(chain).getUserOperationGasPrice()).fast;
