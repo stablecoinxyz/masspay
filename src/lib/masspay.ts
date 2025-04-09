@@ -156,15 +156,18 @@ export async function executeGaslessMassPay(
     }
 
     // send the batch call transaction to the SimpleAccount,
-    // using your gas credits policy ID
-    const userOpHash = await smartAccountClient.sendTransaction({
+    const userOpHash = await smartAccountClient.sendUserOperation({
       calls,
-      paymasterContext: {
-        sponsorshipPolicyId: process.env.NEXT_PUBLIC_SPONSORSHIP_POLICY_ID!,
-      },
     });
 
-    return userOpHash;
+    const receipt = await smartAccountClient.waitForUserOperationReceipt({
+      hash: userOpHash,
+      pollingInterval: 1000,
+      timeout: 60000,
+      retryCount: 10,
+    });
+
+    return receipt.userOpHash;
   } catch (e) {
     return (e as any).message;
   }

@@ -289,15 +289,7 @@ export default function MassPayPage() {
           <div className="ml-auto absolute top-[3.8rem] right-6">
               <ConnectWallet />
           </div>
-          { chain?.id === base.id && (
-          <div className="absolute -right-72 top-0 p-3 bg-slate-800 rounded-lg border border-slate-700 shadow-md max-w-[250px]">
-            <div className="text-sm text-mutedForeground">
-              <p className="mb-2 font-medium text-secondary"><span>💡</span> Try our custom paymaster</p>
-              <p className="mb-2"><span>&larr;</span> Switch to Base Sepolia to experience our custom paymaster experience.</p>
-              
-            </div>
-          </div>
-          )}
+          
         </div>
       </div>
     );
