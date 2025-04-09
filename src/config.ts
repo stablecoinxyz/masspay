@@ -11,9 +11,9 @@ export function rpcConfig(chain: Chain) {
     case localhost.id:
       return "http://localhost:8545";
     case base.id:
-      return "https://base-rpc.publicnode.com";
+      return "https://base.llamarpc.com";
     case baseSepolia.id:
-      return "https://base-sepolia-rpc.publicnode.com";
+      return "https://base-sepolia.llamarpc.com";
     default:
       return "";
   }

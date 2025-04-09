@@ -163,8 +163,8 @@ export async function executeGaslessMassPay(
     const receipt = await smartAccountClient.waitForUserOperationReceipt({
       hash: userOpHash,
       pollingInterval: 1000,
-      timeout: 60000,
-      retryCount: 10,
+      timeout: 120000,
+      retryCount: 20,
     });
 
     return receipt.userOpHash;
