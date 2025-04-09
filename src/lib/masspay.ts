@@ -167,11 +167,11 @@ export async function executeGaslessMassPay(
       retryCount: 5,
     })
     .catch((e) => {
-      console.error(e);
       // if timeout but the userOpHash is still valid, return the userOpHash anyway
       if (e instanceof WaitForUserOperationReceiptTimeoutError && userOpHash.startsWith("0x")) {
         return userOpHash;
       } else {
+        console.error(e);
         return null;
       }
     });
