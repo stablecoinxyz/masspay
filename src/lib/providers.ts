@@ -13,9 +13,11 @@ export const getPublicClient = (chain: Chain) =>
 export function getScannerUrl(chainId: number, transactionHash: string) {
   switch (chainId) {
     case baseSepolia.id:
-      return `https://sepolia.basescan.org/tx/${transactionHash}`;
+      // return `https://sepolia.basescan.org/tx/${transactionHash}`;
+      return `https://base-sepolia.blockscout.com/op/${transactionHash}`
     case base.id:
-      return `https://basescan.org/tx/${transactionHash}`;
+      // return `https://basescan.org/tx/${transactionHash}`;
+      return `https://base.blockscout.com/op/${transactionHash}`
     default:
       return `chainId ${chainId} not supported`;
   }

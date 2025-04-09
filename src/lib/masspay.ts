@@ -25,7 +25,7 @@ import {
   WalletClient,
 } from "viem";
 
-import { createPaymasterClient, entryPoint07Address, UserOperation } from "viem/account-abstraction";
+import { createPaymasterClient, entryPoint07Address, UserOperation, WaitForUserOperationReceiptTimeoutError } from "viem/account-abstraction";
 
 import { toSimpleSmartAccount } from "permissionless/accounts";
 import { createSmartAccountClient } from "permissionless";
@@ -163,11 +163,30 @@ export async function executeGaslessMassPay(
     const receipt = await smartAccountClient.waitForUserOperationReceipt({
       hash: userOpHash,
       pollingInterval: 1000,
-      timeout: 120000,
-      retryCount: 20,
+      timeout: 5000,
+      retryCount: 5,
+    })
+    .catch((e) => {
+      console.error(e);
+      // if timeout but the userOpHash is still valid, return the userOpHash anyway
+      if (e instanceof WaitForUserOperationReceiptTimeoutError && userOpHash.startsWith("0x")) {
+        return userOpHash;
+      } else {
+        return null;
+      }
     });
 
-    return receipt.userOpHash;
+    if (!receipt) {
+      return "Error waiting for user operation receipt";
+    }     
+    // if the receipt has userOpHash, return it
+    if (typeof receipt === "string") {
+      return receipt;
+    } else if (receipt.success) {
+      return receipt.userOpHash;
+    } else {
+      return "User operation failed";
+    }
   } catch (e) {
     return (e as any).message;
   }

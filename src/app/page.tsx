@@ -182,7 +182,7 @@ export default function MassPayPage() {
         action: (
           <ToastAction altText="View on BaseScan">View Status</ToastAction>
         ),
-        description: `🎉 Check your transaction status 👉🏻. This may take up to 2 minutes to confirm.`,
+        description: `🎉 Check your transaction here 👉🏻. Tokens take up to 20 mins to arrive.`,
         duration: 30000,
         onClick: () => {
           window.open(getScannerUrl((chain as Chain).id, txHash));
