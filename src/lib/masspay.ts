@@ -8,8 +8,7 @@ import {
   getPublicClient,
   getPimlicoClient,
   pimlicoUrlForChain,
-  getBundlerUrl,
-  getPaymasterServiceUrl,
+  getAaUrl,
 } from "@/lib/providers";
 import { fromReadableAmount } from "@/lib/extras";
 
@@ -50,13 +49,13 @@ async function prepareMassPay(
   });
 
   const paymaster = createPaymasterClient({
-    transport: http(getPaymasterServiceUrl(chain)),
+    transport: http(getAaUrl(chain)),
   });
 
   const smartAccountClient = createSmartAccountClient({
     account: simpleAccount,
     chain,
-    bundlerTransport: http(getBundlerUrl(chain)),
+    bundlerTransport: http(getAaUrl(chain)),
     paymaster,
     userOperation: {
       estimateFeesPerGas: async () => {
