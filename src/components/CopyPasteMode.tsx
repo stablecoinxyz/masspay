@@ -3,9 +3,10 @@
 import { memo } from "react";
 import { PreviewDialog } from "@/components/PreviewDialog";
 
+export const exampleAddressAmounts = `0xB5f6fECd59dAd3d5bA4Dfe8FcCA6617CE71B99f9, 0.01
+0x589c0e47DE10e0946e2365580B700790AAAbe9f7, 0.001`;
 const placeholder = `e.g.
-0xB5f6fECd59dAd3d5bA4Dfe8FcCA6617CE71B99f9, 0.01
-0x589c0e47DE10e0946e2365580B700790AAAbe9f7, 0.001
+${exampleAddressAmounts}
 ...
 `;
 
@@ -39,7 +40,12 @@ const CopyPasteMode = memo(
           Enter payment details
         </div>
         <div className="text-mutedForeground text-sm">
-          Provide recipient addresses and payment amounts separated by commas.
+          <a 
+            onClick={() => onChange(exampleAddressAmounts)} 
+            className="cursor-pointer"
+          >
+            Provide
+          </a> recipient addresses and payment amounts separated by commas.
           You can also upload a CSV file for bulk payments.
         </div>
 

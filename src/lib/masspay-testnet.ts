@@ -10,6 +10,7 @@ import {
   getAaUrl,
 } from "@/lib/providers";
 import { fromReadableAmount } from "@/lib/extras";
+import { getSmartAccount, ACCOUNT_TYPE } from "@/lib/account-utils";
 
 import {
   createWalletClient,
@@ -23,15 +24,15 @@ import {
   WalletClient,
 } from "viem";
 
-import { entryPoint07Address, UserOperation, createPaymasterClient } from "viem/account-abstraction";
+import { UserOperation, createPaymasterClient } from "viem/account-abstraction";
 
-import { toSimpleSmartAccount } from "permissionless/accounts";
 import { createSmartAccountClient } from "permissionless";
 
-// const PAYMASTER_SERVICE_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
-// const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
+const PAYMASTER_SERVICE_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
+const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
 
 async function prepareMassPay(
+  accountType: string = ACCOUNT_TYPE,
   txs: { to: string; value: number }[],
   chain: Chain,
 ) {
@@ -43,23 +44,18 @@ async function prepareMassPay(
 
   console.log("owner address", owner.account.address);
 
-  const simpleAccount = await toSimpleSmartAccount({
-    client: getPublicClient(chain),
-    owner: owner,
-    entryPoint: {
-      address: entryPoint07Address,
-      version: "0.7",
-    },
-  });
+  const smartAccount = await getSmartAccount(accountType, chain, owner);
 
   const paymaster = createPaymasterClient({
     transport: http(getAaUrl(chain)),
+    // transport: http(PAYMASTER_SERVICE_URL),
   });
 
   const smartAccountClient = createSmartAccountClient({
-    account: simpleAccount,
+    account: smartAccount,
     chain,
     bundlerTransport: http(getAaUrl(chain)),
+    // bundlerTransport: http(BUNDLER_SERVER_URL),
     paymaster,
     userOperation: {
       estimateFeesPerGas: async () => {
@@ -95,8 +91,8 @@ async function prepareMassPay(
   // 30 min deadline
   const deadline = Math.floor(Date.now() / 1000) + 60 * 30;
 
-  // get the sender (counterfactual) address of the SimpleAccount
-  const senderAddress = simpleAccount.address;
+  // get the sender (counterfactual) address of the SmartAccount
+  const senderAddress = smartAccount.address;
 
   console.log(`Getting permit signature for: ${senderAddress}, with parameters 
     chain: ${chain.id}
@@ -158,16 +154,17 @@ async function prepareMassPay(
 export async function executeGaslessMassPay(
   txs: { to: string; value: number }[],
   chain: Chain,
+  accountType: string = ACCOUNT_TYPE,
 ): Promise<string> {
   console.log("executeGaslessMassPay TESTNET", txs, chain);
   try {
-    const { smartAccountClient, calls } = await prepareMassPay(txs, chain);
+    const { smartAccountClient, calls } = await prepareMassPay(accountType, txs, chain);
 
     if (calls.length === 0) {
       return "Error preparing mass pay";
     }
 
-    // send the batch call transaction to the SimpleAccount,
+    // send the batch call transaction to the SmartAccount,
     // using your gas credits policy ID
     const userOpHash = await smartAccountClient.sendUserOperation({
       calls,
@@ -189,9 +186,10 @@ export async function executeGaslessMassPay(
 export async function estimateGasForMassPay(
   txs: { to: string; value: number }[],
   chain: Chain,
+  accountType: string = ACCOUNT_TYPE,
 ): Promise<bigint> {
   try {
-    const { smartAccountClient, calls } = await prepareMassPay(txs, chain);
+    const { smartAccountClient, calls } = await prepareMassPay(accountType, txs, chain);
 
     if (calls.length === 0) {
       return 0n;
