@@ -46,15 +46,17 @@ async function prepareMassPay(
 
   const smartAccount = await getSmartAccount(accountType, chain, owner);
 
+  const appEnv = process.env.NEXT_PUBLIC_APP_ENV!;
+
   const paymaster = createPaymasterClient({
-    transport: http(getAaUrl(chain, "staging")),
+    transport: http(getAaUrl(chain, appEnv)),
     // transport: http(PAYMASTER_SERVICE_URL),
   });
 
   const smartAccountClient = createSmartAccountClient({
     account: smartAccount,
     chain,
-    bundlerTransport: http(getAaUrl(chain, "staging")),
+    bundlerTransport: http(getAaUrl(chain, appEnv)),
     // bundlerTransport: http(BUNDLER_SERVER_URL),
     paymaster,
     userOperation: {
