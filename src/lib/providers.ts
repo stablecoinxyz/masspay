@@ -63,10 +63,11 @@ export function getBundlerUrl(chain: Chain) {
   }
 }
 
-export function getAaUrl(chain: Chain) {
+export function getAaUrl(chain: Chain, env?: "staging") {
   switch (chain.id) {
     case baseSepolia.id:
-      return process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL!;
+      console.log("env", env);
+      return env === "staging" ? process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL_STAGING! : process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL!;
     case base.id:
       return process.env.NEXT_PUBLIC_AA_BASE_URL!;
     default:
