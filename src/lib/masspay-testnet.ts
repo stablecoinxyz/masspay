@@ -28,8 +28,8 @@ import { UserOperation, createPaymasterClient } from "viem/account-abstraction";
 
 import { createSmartAccountClient } from "permissionless";
 
-const PAYMASTER_SERVICE_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
-const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
+// const PAYMASTER_SERVICE_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
+// const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
 
 async function prepareMassPay(
   accountType: string = ACCOUNT_TYPE,
@@ -46,15 +46,17 @@ async function prepareMassPay(
 
   const smartAccount = await getSmartAccount(accountType, chain, owner);
 
+  const appEnv = process.env.NEXT_PUBLIC_APP_ENV!;
+
   const paymaster = createPaymasterClient({
-    transport: http(getAaUrl(chain)),
+    transport: http(getAaUrl(chain, appEnv)),
     // transport: http(PAYMASTER_SERVICE_URL),
   });
 
   const smartAccountClient = createSmartAccountClient({
     account: smartAccount,
     chain,
-    bundlerTransport: http(getAaUrl(chain)),
+    bundlerTransport: http(getAaUrl(chain, appEnv)),
     // bundlerTransport: http(BUNDLER_SERVER_URL),
     paymaster,
     userOperation: {

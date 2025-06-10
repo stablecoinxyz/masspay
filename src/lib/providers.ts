@@ -63,10 +63,16 @@ export function getBundlerUrl(chain: Chain) {
   }
 }
 
-export function getAaUrl(chain: Chain) {
+/**
+ * @param chain - The chain to get the AA URL for
+ * @param env - The environment to get the AA URL for. If not provided, the mainnet AA URL will be returned.
+ * @returns The Account Abstraction API URL for the given chain and environment
+ */
+export function getAaUrl(chain: Chain, env?: string) {
   switch (chain.id) {
     case baseSepolia.id:
-      return process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL!;
+      console.log("env =====>", env);
+      return env === "staging" ? process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL_STAGING! : process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL!;
     case base.id:
       return process.env.NEXT_PUBLIC_AA_BASE_URL!;
     default:
