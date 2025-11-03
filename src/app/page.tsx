@@ -13,6 +13,7 @@ import { executeGaslessMassPay } from "@/lib/masspay";
 import { executeGaslessMassPay as executeGaslessMassPayTestnet } from "@/lib/masspay-testnet";
 import { CurrentConfig, dataConfig, type DataConfig } from "@/config";
 import { base, baseSepolia } from "viem/chains";
+import { radiusTestnet } from "@/lib/custom-network";
 
 export default function MassPayPage() {
   const account = useAccount();
@@ -58,6 +59,15 @@ export default function MassPayPage() {
   } = useBalance({
     address,
     token: SBC[baseSepolia.id].address as Hex,
+  });
+
+  const {
+    data: sbcRadiusTestnetBalance,
+    isLoading: isSbcRadiusTestnetLoading,
+    isError: isSbcRadiusTestnetError,
+  } = useBalance({
+    address,
+    token: SBC[radiusTestnet.id].address as Hex,
   });
 
   /**
@@ -133,8 +143,7 @@ export default function MassPayPage() {
       return;
     }
 
-    // We're using Pimlico's paymaster on Base, so we can only send up to 200 recipients per transaction
-    if (chain.id === base.id && addrAmt.split("\n").length > 200) {
+    if (addrAmt.split("\n").length > 200) {
       toast({
         title: "Too many recipients",
         description: `MassPay supports up to 200 recipients per transaction. Please reduce the number of recipients and try again.`,
@@ -159,7 +168,7 @@ export default function MassPayPage() {
       });
 
       let txHash: string;
-      if (chain.id === baseSepolia.id) {
+      if (chain.id === baseSepolia.id || chain.id === radiusTestnet.id) {
         txHash = await executeGaslessMassPayTestnet(txs, chain);
       } else {
         txHash = await executeGaslessMassPay(txs, chain);
@@ -201,7 +210,11 @@ export default function MassPayPage() {
   }
 
   useEffect(() => {
-    setCurrentChain(chain as Chain);
+    if (chain?.id === radiusTestnet.id) {
+      setCurrentChain(radiusTestnet);
+    } else {
+      setCurrentChain(chain as Chain);
+    }
   }, [chain]);
 
   useEffect(() => {
@@ -211,7 +224,10 @@ export default function MassPayPage() {
     } else if (chain?.id === baseSepolia.id) {
       setSbcBalance(sbcBaseSepoliaBalance!);
     }
-  }, [sbcBaseBalance, sbcBaseSepoliaBalance, chain]);
+    else if (chain?.id === radiusTestnet.id) {
+      setSbcBalance(sbcRadiusTestnetBalance!);
+    }
+  }, [sbcBaseBalance, sbcBaseSepoliaBalance, sbcRadiusTestnetBalance, chain]);
 
   return (
     <main className="px-4 pb-10 min-h-[100vh] min-w-[600] flex items-top justify-center container max-w-screen-lg mx-auto">

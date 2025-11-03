@@ -6,8 +6,6 @@ import { CurrentConfig } from "@/config";
 import { SBC } from "@/lib/constants";
 import {
   getPublicClient,
-  getPimlicoClient,
-  pimlicoUrlForChain,
   getAaUrl,
 } from "@/lib/providers";
 import { fromReadableAmount } from "@/lib/extras";
@@ -53,7 +51,11 @@ async function prepareMassPay(
     paymaster,
     userOperation: {
       estimateFeesPerGas: async () => {
-        return (await getPimlicoClient(chain).getUserOperationGasPrice()).fast;
+        const gasPrice = await getPublicClient(chain).getGasPrice();
+        return {
+          maxFeePerGas: gasPrice,
+          maxPriorityFeePerGas: gasPrice * 2n,
+        }
       },
     },
   });

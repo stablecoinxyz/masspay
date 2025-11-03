@@ -1,6 +1,7 @@
 import { PublicClient, WalletClient, Chain } from "viem";
 import { localhost, base, baseSepolia } from "viem/chains";
 import { UseAccountReturnType } from "wagmi";
+import { radiusTestnet } from "@/lib/custom-network";
 
 export function rpcConfig(chain: Chain) {
   if (!chain) {
@@ -14,6 +15,8 @@ export function rpcConfig(chain: Chain) {
       return "https://base-rpc.publicnode.com";
     case baseSepolia.id:
       return "https://base-sepolia-rpc.publicnode.com";
+    case radiusTestnet.id:
+      return "https://rpc.testnet.radiustech.xyz";
     default:
       return "";
   }

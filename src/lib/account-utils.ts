@@ -5,10 +5,10 @@ import {
   Account,
 } from "viem";
 
-import { 
-  entryPoint07Address, 
-  SmartAccount, 
-  toCoinbaseSmartAccount 
+import {
+  entryPoint07Address,
+  SmartAccount,
+  toCoinbaseSmartAccount
 } from "viem/account-abstraction";
 
 import {
@@ -21,6 +21,8 @@ import {
 } from "permissionless/accounts";
 
 import { getPublicClient } from "@/lib/providers";
+import { radiusTestnet } from "@/lib/custom-network";
+import { toRadiusSimpleSmartAccount } from "@/lib/radius-simple-account";
 
 // Get account type from environment or default to "simple"
 export const ACCOUNT_TYPE = process.env.NEXT_PUBLIC_ACCOUNT_TYPE || "simple";
@@ -38,6 +40,14 @@ export async function getSmartAccount(
   owner: WalletClient<Transport, Chain, Account>
 ): Promise<SmartAccount> {
   const publicClient = getPublicClient(chain);
+
+  // Special handling for Radius Testnet - use custom EntryPoint and Factory
+  if (chain.id === radiusTestnet.id && accountType.toLowerCase() === "simple") {
+    return await toRadiusSimpleSmartAccount({
+      client: publicClient,
+      owner,
+    });
+  }
 
   switch (accountType.toLowerCase()) {
     case "coinbase":

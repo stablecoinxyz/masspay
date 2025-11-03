@@ -29,6 +29,7 @@ export function PreviewDialog({
   handleSubmit: any;
   isValid: (addrAmt: string) => boolean;
 }) {
+  
   /**
    * Calculates and returns the total amount to send
    * @param addrAmt input string of addresses and amounts
@@ -37,8 +38,13 @@ export function PreviewDialog({
   function getTotalAmtToSend(addrAmt: string): string {
     const totalAmtToSend = addrAmt
       .split("\n")
-      .map((line) => line.split(",")[1])
-      .reduce((acc, val) => acc + parseFloat(val), 0)
+      .filter((line) => line.trim()) // Filter out empty lines
+      .map((line) => {
+        const parts = line.split(",");
+        const amountStr = parts[1]?.trim(); // Get amount and trim whitespace
+        return amountStr ? parseFloat(amountStr) : 0;
+      })
+      .reduce((acc, val) => acc + (isNaN(val) ? 0 : val), 0)
       .toFixed(6);
     return totalAmtToSend;
   }
@@ -107,23 +113,24 @@ export function PreviewDialog({
         <div className="grid grid-cols-2 text-sm text-mutedForeground mt-4">
           <div className="">Beginning balance:</div>
           <div className="text-right">
-            {sbcBalance && Number(sbcBalance.formatted).toFixed(6)}
+            {sbcBalance?.formatted ? Number(sbcBalance.formatted).toFixed(6) : "0.000000"}
           </div>
           <div className="">Recipients:</div>
           <div className="text-right">
-            {addrAmt.split("\n").length} addresses
+            {addrAmt.split("\n").filter(line => line.trim()).length} addresses
           </div>
           <div className="">Total amount to send:</div>
           <div className="text-right">
-            {sbcBalance && getTotalAmtToSend(addrAmt)}
+            {getTotalAmtToSend(addrAmt)}
           </div>
           <div className="">Ending balance:</div>
           <div className="text-right">
-            {sbcBalance &&
-              (
-                Number(sbcBalance.formatted) -
-                Number(getTotalAmtToSend(addrAmt))
-              ).toFixed(6)}
+            {sbcBalance?.formatted
+              ? (
+                  Number(sbcBalance.formatted) -
+                  Number(getTotalAmtToSend(addrAmt))
+                ).toFixed(6)
+              : "0.000000"}
           </div>
         </div>
 
@@ -140,10 +147,7 @@ export function PreviewDialog({
               className={btnClasses}
               onClick={async (e) => await handleSubmit(e)}
               disabled={
-                !isValid(addrAmt) //||
-                // addrAmt.split("\n").length > 200 ||
-                // parseFloat(sbcBalance.value.toString()) <
-                //   parseFloat(getTotalAmtToSend(addrAmt))
+                !isValid(addrAmt) 
               }
             >
               Send

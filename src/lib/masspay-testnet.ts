@@ -6,7 +6,6 @@ import { CurrentConfig } from "@/config";
 import { SBC } from "@/lib/constants";
 import {
   getPublicClient,
-  getPimlicoClient,
   getAaUrl,
 } from "@/lib/providers";
 import { fromReadableAmount } from "@/lib/extras";
@@ -46,6 +45,8 @@ async function prepareMassPay(
 
   const smartAccount = await getSmartAccount(accountType, chain, owner);
 
+  console.log("smartAccount address", smartAccount);
+
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV!;
 
   const paymaster = createPaymasterClient({
@@ -61,7 +62,16 @@ async function prepareMassPay(
     paymaster,
     userOperation: {
       estimateFeesPerGas: async () => {
-        return (await getPimlicoClient(chain).getUserOperationGasPrice()).fast;
+        let gasPrice = await getPublicClient(chain).getGasPrice();
+
+        // increment gas price by 1 gwei to ensure non-zero gas price
+        gasPrice = gasPrice + 1000000000n;
+        console.log("gasPrice", gasPrice);
+        
+        return {
+          maxFeePerGas: gasPrice,
+          maxPriorityFeePerGas: gasPrice * 2n,
+        }
       },
     },
   });
@@ -166,21 +176,46 @@ export async function executeGaslessMassPay(
       return "Error preparing mass pay";
     }
 
-    // send the batch call transaction to the SmartAccount,
-    // using your gas credits policy ID
+    console.log("Prepared calls:", calls);
+    console.log("Smart account address:", smartAccountClient.account.address);
+    console.log("Chain ID:", chain.id);
+    console.log("Paymaster client configured:", !!smartAccountClient.paymaster);
+
+    // Set explicit gas limits for Radius Testnet to avoid estimation issues
+    const gasLimits = chain.id === 1223953 ? {
+      callGasLimit: 300000n,
+      verificationGasLimit: 300000n,
+      preVerificationGas: 100000n,
+    } : {};
+
+    console.log("Using gas limits:", gasLimits);
+
     const userOpHash = await smartAccountClient.sendUserOperation({
       calls,
+      ...gasLimits,
     });
 
-    const receipt = await smartAccountClient.waitForUserOperationReceipt({
+    console.log("UserOp hash:", userOpHash);
+
+    const response = await smartAccountClient.waitForUserOperationReceipt({
       hash: userOpHash,
       pollingInterval: 1000,
       timeout: 100000,
       retryCount: 10,
     });
 
-    return receipt.userOpHash;
+    console.log("Receipt response:", response);
+
+    // return the transaction hash if it exists, otherwise return the user operation hash, otherwise return an error
+    if (response.receipt) {
+      return response.receipt.transactionHash;
+    } else if (response.userOpHash) {
+      return response.userOpHash;
+    } else {
+      return "Error waiting for user operation receipt";
+    }
   } catch (e) {
+    console.error("Error in executeGaslessMassPay:", e);
     return (e as any).message;
   }
 }
