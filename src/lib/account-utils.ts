@@ -54,6 +54,7 @@ export async function getSmartAccount(
       return await toCoinbaseSmartAccount({
         client: publicClient,
         owners: [owner.account.address],
+        version: "1",
       });
     case "zerodev":
       return await toKernelSmartAccount({
