@@ -156,32 +156,24 @@ export async function executeGaslessMassPay(
       calls,
     });
 
-    const receipt = await smartAccountClient.waitForUserOperationReceipt({
+    console.log("userOpHash", userOpHash);
+
+    const response = await smartAccountClient.waitForUserOperationReceipt({
       hash: userOpHash,
       pollingInterval: 1000,
       timeout: 5000,
       retryCount: 5,
     })
-    .catch((e) => {
-      // if timeout but the userOpHash is still valid, return the userOpHash anyway
-      if (e instanceof WaitForUserOperationReceiptTimeoutError && userOpHash.startsWith("0x")) {
-        return userOpHash;
-      } else {
-        console.error(e);
-        return null;
-      }
-    });
 
-    if (!receipt) {
-      return "Error waiting for user operation receipt";
-    }     
-    // if the receipt has userOpHash, return it
-    if (typeof receipt === "string") {
-      return receipt;
-    } else if (receipt.success) {
-      return receipt.userOpHash;
+    console.log("Receipt response", response);
+
+    // return the transaction hash if it exists, otherwise return the user operation hash, otherwise return an error
+    if (response.receipt) {
+      return response.receipt.transactionHash;
+    } else if (response.userOpHash) {
+      return response.userOpHash;
     } else {
-      return "User operation failed";
+      return "Error waiting for user operation receipt";
     }
   } catch (e) {
     return (e as any).message;
