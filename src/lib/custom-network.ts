@@ -1,7 +1,7 @@
 import { Chain, defineChain } from 'viem'
 
 export const radiusTestnet = defineChain({
-  id: 1223953,
+  id: 72344,
   name: 'Radius Testnet',
   nativeCurrency: { 
     name: 'USD', 

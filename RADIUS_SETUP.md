@@ -6,8 +6,8 @@ This guide explains how to set up and use MassPay on Radius Testnet.
 
 Radius Testnet uses custom ERC-4337 infrastructure with specific EntryPoint and SimpleAccountFactory addresses. This implementation includes:
 
-- **Custom EntryPoint**: `0x9b443e4bd122444852B52331f851a000164Cc83F`
-- **Custom SimpleAccountFactory**: `0x4DEbDe0Be05E51432D9afAf61D84F7F0fEA63495`
+- **Custom EntryPoint**: `0xfA15FF1e8e3a66737fb161e4f9Fa8935daD7B04F`
+- **Custom SimpleAccountFactory**: `0x7d8fB3E53d345601a02C3214e314f28668510b03`
 - **TestSBCPermit Token**: `0xbc14568925d9359a203b5c5c6de838c8baeebf5a` (with EIP-2612 permit support)
 
 ## Prerequisites
@@ -47,7 +47,7 @@ npm run start
 ```bash
 cd ../account-abstraction/alto
 ./alto \
-  --entrypoints "0x9b443e4bd122444852B52331f851a000164Cc83F" \
+  --entrypoints "0xfA15FF1e8e3a66737fb161e4f9Fa8935daD7B04F" \
   --executor-private-keys "YOUR_EXECUTOR_PRIVATE_KEY" \
   --rpc-url "https://rpc.testnet.radiustech.xyz" \
   --network-name "radiusTestnet" \
@@ -118,7 +118,7 @@ The transaction will:
 - Ensure you're using the latest code with `toRadiusSimpleSmartAccount`
 
 ### "Invalid signature" Error
-- Check that the permit signature is for the correct chain ID (1223953)
+- Check that the permit signature is for the correct chain ID (72344)
 - Verify the token contract supports EIP-2612 permit
 
 ## Architecture

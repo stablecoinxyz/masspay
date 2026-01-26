@@ -29,8 +29,8 @@ import { getAccountNonce, getSenderAddress } from "permissionless/actions";
 import { toOwner } from "permissionless/utils";
 
 // Radius Testnet specific addresses
-export const RADIUS_ENTRY_POINT_ADDRESS = "0x9b443e4bd122444852B52331f851a000164Cc83F" as const;
-export const RADIUS_SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x4DEbDe0Be05E51432D9afAf61D84F7F0fEA63495" as const;
+export const RADIUS_ENTRY_POINT_ADDRESS = "0xfA15FF1e8e3a66737fb161e4f9Fa8935daD7B04F" as const;
+export const RADIUS_SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x7d8fB3E53d345601a02C3214e314f28668510b03" as const;
 
 const getAccountInitCode = async (
   owner: Address,

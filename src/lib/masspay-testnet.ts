@@ -182,7 +182,7 @@ export async function executeGaslessMassPay(
     console.log("Paymaster client configured:", !!smartAccountClient.paymaster);
 
     // Set explicit gas limits for Radius Testnet to avoid estimation issues
-    const gasLimits = chain.id === 1223953 ? {
+    const gasLimits = chain.id === 72344 ? {
       callGasLimit: 300000n,
       verificationGasLimit: 300000n,
       preVerificationGas: 100000n,
