@@ -13,7 +13,7 @@ import { executeGaslessMassPay } from "@/lib/masspay";
 import { executeGaslessMassPay as executeGaslessMassPayTestnet } from "@/lib/masspay-testnet";
 import { CurrentConfig, dataConfig, type DataConfig } from "@/config";
 import { base, baseSepolia } from "viem/chains";
-import { radiusTestnet } from "@/lib/custom-network";
+import { radiusTestnet, radiusMainnet } from "@/lib/custom-network";
 
 export default function MassPayPage() {
   const account = useAccount();
@@ -68,6 +68,15 @@ export default function MassPayPage() {
   } = useBalance({
     address,
     token: SBC[radiusTestnet.id].address as Hex,
+  });
+
+  const {
+    data: sbcRadiusMainnetBalance,
+    isLoading: isSbcRadiusMainnetLoading,
+    isError: isSbcRadiusMainnetError,
+  } = useBalance({
+    address,
+    token: SBC[radiusMainnet.id].address as Hex,
   });
 
   /**
@@ -132,7 +141,7 @@ export default function MassPayPage() {
       .map((line) => line.split(",")[1])
       .reduce((acc, val) => acc + parseFloat(val), 0);
 
-    if (totalAmtToSend > parseFloat(sbcBalance.formatted)) {
+    if (totalAmtToSend > parseFloat(sbcBalance?.formatted ?? "0")) {
       toast({
         title: "Insufficient Balance",
         description: `You do not have enough balance to send ${totalAmtToSend.toFixed(
@@ -168,7 +177,7 @@ export default function MassPayPage() {
       });
 
       let txHash: string;
-      if (chain.id === baseSepolia.id || chain.id === radiusTestnet.id) {
+      if (chain.id === baseSepolia.id || chain.id === radiusTestnet.id || chain.id === radiusMainnet.id) {
         txHash = await executeGaslessMassPayTestnet(txs, chain);
       } else {
         txHash = await executeGaslessMassPay(txs, chain);
@@ -212,22 +221,28 @@ export default function MassPayPage() {
   useEffect(() => {
     if (chain?.id === radiusTestnet.id) {
       setCurrentChain(radiusTestnet);
+    } else if (chain?.id === radiusMainnet.id) {
+      setCurrentChain(radiusMainnet);
     } else {
       setCurrentChain(chain as Chain);
     }
   }, [chain]);
 
   useEffect(() => {
-    setSbcBalance(sbcBaseBalance!);
+    let balance;
     if (chain?.id === base.id) {
-      setSbcBalance(sbcBaseBalance!);
+      balance = sbcBaseBalance;
     } else if (chain?.id === baseSepolia.id) {
-      setSbcBalance(sbcBaseSepoliaBalance!);
+      balance = sbcBaseSepoliaBalance;
+    } else if (chain?.id === radiusTestnet.id) {
+      balance = sbcRadiusTestnetBalance;
+    } else if (chain?.id === radiusMainnet.id) {
+      balance = sbcRadiusMainnetBalance;
     }
-    else if (chain?.id === radiusTestnet.id) {
-      setSbcBalance(sbcRadiusTestnetBalance!);
+    if (balance) {
+      setSbcBalance(balance);
     }
-  }, [sbcBaseBalance, sbcBaseSepoliaBalance, sbcRadiusTestnetBalance, chain]);
+  }, [sbcBaseBalance, sbcBaseSepoliaBalance, sbcRadiusTestnetBalance, sbcRadiusMainnetBalance, chain]);
 
   return (
     <main className="px-4 pb-10 min-h-[100vh] min-w-[600] flex items-top justify-center container max-w-screen-lg mx-auto">

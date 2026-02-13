@@ -29,8 +29,13 @@ import { getAccountNonce, getSenderAddress } from "permissionless/actions";
 import { toOwner } from "permissionless/utils";
 
 // Radius Testnet specific addresses
-export const RADIUS_ENTRY_POINT_ADDRESS = "0xfA15FF1e8e3a66737fb161e4f9Fa8935daD7B04F" as const;
-export const RADIUS_SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x7d8fB3E53d345601a02C3214e314f28668510b03" as const;
+export const RADIUS_TESTNET_ENTRY_POINT_ADDRESS = "0xfA15FF1e8e3a66737fb161e4f9Fa8935daD7B04F" as const;
+export const RADIUS_TESTNET_SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x7d8fB3E53d345601a02C3214e314f28668510b03" as const;
+
+// Radius Mainnet specific addresses
+export const RADIUS_MAINNET_ENTRY_POINT_ADDRESS = "0xfA15FF1e8e3a66737fb161e4f9Fa8935daD7B04F" as const;
+export const RADIUS_MAINNET_SIMPLE_ACCOUNT_FACTORY_ADDRESS = "0x7d8fB3E53d345601a02C3214e314f28668510b03" as const;
+
 
 const getAccountInitCode = async (
   owner: Address,
@@ -96,9 +101,9 @@ export type RadiusSimpleSmartAccountImplementation = SmartAccountImplementation<
 export type ToRadiusSimpleSmartAccountReturnType = SmartAccount<RadiusSimpleSmartAccountImplementation>;
 
 /**
- * @description Creates a Simple Account for Radius Testnet with custom EntryPoint and Factory addresses
+ * @description Creates a Simple Account for Radius (Testnet or Mainnet) with custom EntryPoint and Factory addresses
  *
- * @returns A Simple Smart Account configured for Radius Testnet
+ * @returns A Simple Smart Account configured for Radius
  */
 export async function toRadiusSimpleSmartAccount(
   parameters: ToRadiusSimpleSmartAccountParameters
@@ -113,18 +118,8 @@ export async function toRadiusSimpleSmartAccount(
 
   const localOwner = await toOwner({ owner });
 
-  const entryPoint = {
-    address: RADIUS_ENTRY_POINT_ADDRESS,
-    abi: entryPoint07Abi,
-    version: "0.7",
-  } as const;
-
-  const factoryAddress = RADIUS_SIMPLE_ACCOUNT_FACTORY_ADDRESS;
-
-  let accountAddress: Address | undefined = address;
-
+  // Determine chain ID
   let chainId: number;
-
   const getMemoizedChainId = async () => {
     if (chainId) return chainId;
     chainId = client.chain
@@ -132,6 +127,19 @@ export async function toRadiusSimpleSmartAccount(
       : await getAction(client, getChainId, "getChainId")({});
     return chainId;
   };
+
+  // Use correct addresses based on chain
+  const isMainnet = (client.chain?.id ?? await getMemoizedChainId()) === 723;
+  const entryPointAddress = isMainnet ? RADIUS_MAINNET_ENTRY_POINT_ADDRESS : RADIUS_TESTNET_ENTRY_POINT_ADDRESS;
+  const factoryAddress = isMainnet ? RADIUS_MAINNET_SIMPLE_ACCOUNT_FACTORY_ADDRESS : RADIUS_TESTNET_SIMPLE_ACCOUNT_FACTORY_ADDRESS;
+
+  const entryPoint = {
+    address: entryPointAddress,
+    abi: entryPoint07Abi,
+    version: "0.7",
+  } as const;
+
+  let accountAddress: Address | undefined = address;
 
   const getFactoryArgs = async () => {
     return {

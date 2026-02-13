@@ -1,22 +1,25 @@
 import { PublicClient, WalletClient, Chain } from "viem";
 import { localhost, base, baseSepolia } from "viem/chains";
 import { UseAccountReturnType } from "wagmi";
-import { radiusTestnet } from "@/lib/custom-network";
+import { radiusTestnet, radiusMainnet } from "@/lib/custom-network";
 
 export function rpcConfig(chain: Chain) {
   if (!chain) {
     return "";
   }
 
+  // Check for custom RPC URLs from environment variables first
   switch (chain.id) {
     case localhost.id:
-      return "http://localhost:8545";
+      return process.env.NEXT_PUBLIC_LOCALHOST_RPC_URL || "http://localhost:8545";
     case base.id:
-      return "https://base-rpc.publicnode.com";
+      return process.env.NEXT_PUBLIC_BASE_RPC_URL || "https://base-rpc.publicnode.com";
     case baseSepolia.id:
-      return "https://base-sepolia-rpc.publicnode.com";
+      return process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC_URL || "https://base-sepolia-rpc.publicnode.com";
     case radiusTestnet.id:
-      return "https://rpc.testnet.radiustech.xyz";
+      return process.env.NEXT_PUBLIC_RADIUS_TESTNET_RPC_URL || "https://rpc.testnet.radiustech.xyz";
+    case radiusMainnet.id:
+      return process.env.NEXT_PUBLIC_RADIUS_MAINNET_RPC_URL || "https://rpc.radiustech.xyz/";
     default:
       return "";
   }

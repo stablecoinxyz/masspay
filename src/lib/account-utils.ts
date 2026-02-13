@@ -21,7 +21,7 @@ import {
 } from "permissionless/accounts";
 
 import { getPublicClient } from "@/lib/providers";
-import { radiusTestnet } from "@/lib/custom-network";
+import { radiusTestnet, radiusMainnet } from "@/lib/custom-network";
 import { toRadiusSimpleSmartAccount } from "@/lib/radius-simple-account";
 
 // Get account type from environment or default to "simple"
@@ -41,8 +41,8 @@ export async function getSmartAccount(
 ): Promise<SmartAccount> {
   const publicClient = getPublicClient(chain);
 
-  // Special handling for Radius Testnet - use custom EntryPoint and Factory
-  if (chain.id === radiusTestnet.id && accountType.toLowerCase() === "simple") {
+  // Special handling for Radius Testnet and Mainnet - use custom EntryPoint and Factory
+  if ((chain.id === radiusTestnet.id || chain.id === radiusMainnet.id) && accountType.toLowerCase() === "simple") {
     return await toRadiusSimpleSmartAccount({
       client: publicClient,
       owner,

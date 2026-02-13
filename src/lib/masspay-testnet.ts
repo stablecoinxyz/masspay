@@ -26,9 +26,7 @@ import {
 import { UserOperation, createPaymasterClient } from "viem/account-abstraction";
 
 import { createSmartAccountClient } from "permissionless";
-
-// const PAYMASTER_SERVICE_URL = process.env.NEXT_PUBLIC_PAYMASTER_SERVICE_URL!;
-// const BUNDLER_SERVER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL!;
+import { radiusTestnet } from "@/lib/custom-network";
 
 async function prepareMassPay(
   accountType: string = ACCOUNT_TYPE,
@@ -182,7 +180,7 @@ export async function executeGaslessMassPay(
     console.log("Paymaster client configured:", !!smartAccountClient.paymaster);
 
     // Set explicit gas limits for Radius Testnet to avoid estimation issues
-    const gasLimits = chain.id === 72344 ? {
+    const gasLimits = chain.id === radiusTestnet.id ? {
       callGasLimit: 300000n,
       verificationGasLimit: 300000n,
       preVerificationGas: 100000n,

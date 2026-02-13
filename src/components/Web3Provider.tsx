@@ -6,15 +6,16 @@ import { base, baseSepolia } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { rpcConfig } from "@/config";
-import { radiusTestnet } from "@/lib/custom-network";
+import { radiusTestnet, radiusMainnet } from "@/lib/custom-network";
 
 const config = createConfig(
   getDefaultConfig({
-    chains: [base, baseSepolia, radiusTestnet],
+    chains: [base, baseSepolia, radiusTestnet, radiusMainnet],
     transports: {
       [base.id]: fallback([http(rpcConfig(base), { timeout: 240_000 })]),
       [baseSepolia.id]: fallback([http(rpcConfig(baseSepolia), { timeout: 240_000 })]),
       [radiusTestnet.id]: fallback([http(rpcConfig(radiusTestnet), { timeout: 240_000 })]),
+      [radiusMainnet.id]: fallback([http(rpcConfig(radiusMainnet), { timeout: 240_000 })]),
     },
 
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
