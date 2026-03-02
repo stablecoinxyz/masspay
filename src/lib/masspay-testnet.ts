@@ -319,6 +319,7 @@ async function getPermitSignature(
 
     return signature as Hex;
   } catch (e) {
+    console.error("Permit signature error:", e);
     return "0xError";
   }
 }
