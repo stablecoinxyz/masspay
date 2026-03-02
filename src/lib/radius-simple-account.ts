@@ -23,7 +23,7 @@ import {
   toSmartAccount,
 } from "viem/account-abstraction";
 
-import { getChainId, signMessage } from "viem/actions";
+import { getChainId, getBytecode, signMessage } from "viem/actions";
 import { getAction } from "viem/utils";
 import { getAccountNonce, getSenderAddress } from "permissionless/actions";
 import { toOwner } from "permissionless/utils";
@@ -141,11 +141,26 @@ export async function toRadiusSimpleSmartAccount(
 
   let accountAddress: Address | undefined = address;
 
-  const getFactoryArgs = async () => {
+  const getInitCode = async () => {
     return {
       factory: factoryAddress,
       factoryData: await getAccountInitCode(localOwner.address, index),
     };
+  };
+
+  const getFactoryArgs = async () => {
+    // Check if the account is already deployed — if so, don't send factory data
+    const { factory, factoryData } = await getInitCode();
+    const accountAddr = accountAddress ?? await getSenderAddress(client, {
+      factory,
+      factoryData,
+      entryPointAddress: entryPointAddress,
+    });
+    const code = await getBytecode(client, { address: accountAddr });
+    if (code && code !== "0x") {
+      return {};
+    }
+    return { factory, factoryData };
   };
 
   return toSmartAccount({
@@ -155,7 +170,7 @@ export async function toRadiusSimpleSmartAccount(
     async getAddress() {
       if (accountAddress) return accountAddress;
 
-      const { factory, factoryData } = await getFactoryArgs();
+      const { factory, factoryData } = await getInitCode();
 
       // Get the sender address based on the init code
       accountAddress = await getSenderAddress(client, {
@@ -323,11 +338,11 @@ export async function toRadiusSimpleSmartAccount(
         ];
       }
     },
-    async getNonce(args) {
+    async getNonce(_args) {
       return getAccountNonce(client, {
         address: await this.getAddress(),
         entryPointAddress: entryPoint.address,
-        key: nonceKey ?? args?.key,
+        key: nonceKey ?? 0n,
       });
     },
     async getStubSignature() {

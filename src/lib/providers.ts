@@ -18,7 +18,7 @@ export function getScannerUrl(chainId: number, transactionHash: string) {
     case radiusTestnet.id:
       return `https://testnet.radiustech.xyz/testnet/explorer?view=tx-details&hash=${transactionHash}`;
     case radiusMainnet.id:
-      return `https://explorer.radiustech.xyz/tx/${transactionHash}`;
+      return `https://network.radiustech.xyz/tx/${transactionHash}`;
     default:
       return `getScannerUrl: chainId ${chainId} not supported`;
   }

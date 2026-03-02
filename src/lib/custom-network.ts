@@ -45,7 +45,7 @@ export const radiusMainnet = defineChain({
   blockExplorers: {
     default: {
       name: 'Radius Explorer',
-      url: 'https://explorer.radiustech.xyz'
+      url: 'https://network.radiustech.xyz'
     },
   },
 });
