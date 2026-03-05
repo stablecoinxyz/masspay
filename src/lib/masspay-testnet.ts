@@ -68,7 +68,7 @@ async function prepareMassPay(
         
         return {
           maxFeePerGas: gasPrice,
-          maxPriorityFeePerGas: 0n,
+          maxPriorityFeePerGas: gasPrice,
         }
       },
     },
