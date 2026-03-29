@@ -29,7 +29,7 @@ export const radiusTestnet = defineChain({
 });
 
 export const radiusMainnet = defineChain({
-  id: 723,
+  id: 723487,
   name: 'Radius',
   network: 'radius',
   nativeCurrency: {

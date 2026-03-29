@@ -129,7 +129,7 @@ export async function toRadiusSimpleSmartAccount(
   };
 
   // Use correct addresses based on chain
-  const isMainnet = (client.chain?.id ?? await getMemoizedChainId()) === 723;
+  const isMainnet = (client.chain?.id ?? await getMemoizedChainId()) === 723487;
   const entryPointAddress = isMainnet ? RADIUS_MAINNET_ENTRY_POINT_ADDRESS : RADIUS_TESTNET_ENTRY_POINT_ADDRESS;
   const factoryAddress = isMainnet ? RADIUS_MAINNET_SIMPLE_ACCOUNT_FACTORY_ADDRESS : RADIUS_TESTNET_SIMPLE_ACCOUNT_FACTORY_ADDRESS;
 
