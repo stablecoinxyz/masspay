@@ -24,22 +24,36 @@ export function getScannerUrl(chainId: number, transactionHash: string) {
   }
 }
 
+function aaChainKey(chainId: number): string | null {
+  switch (chainId) {
+    case baseSepolia.id:
+      return "baseSepolia";
+    case base.id:
+      return "base";
+    case radiusTestnet.id:
+      return "radiusTestnet";
+    case radiusMainnet.id:
+      return "radius";
+    default:
+      return null;
+  }
+}
+
 /**
  * @param chain - The chain to get the AA URL for
- * @param env - The environment to get the AA URL for. If not provided, the mainnet AA URL will be returned.
- * @returns The Account Abstraction API URL for the given chain and environment
+ * @param env - The environment. When "staging", the proxy forwards to the staging bundler.
+ * @returns A same-origin URL for the Account Abstraction proxy route.
+ *
+ * The bundler API key is no longer exposed to the browser. This returns a URL
+ * to our own /api/aa/{chain} route, which forwards to the real bundler with a
+ * server-only key. See src/app/api/aa/[chain]/route.ts.
  */
 export function getAaUrl(chain: Chain, env?: string) {
-  switch (chain.id) {
-    case baseSepolia.id:
-      return env === "staging" ? process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL_STAGING! : process.env.NEXT_PUBLIC_AA_BASE_SEPOLIA_URL!;
-    case base.id:
-      return env === "staging" ? process.env.NEXT_PUBLIC_AA_BASE_URL_STAGING! : process.env.NEXT_PUBLIC_AA_BASE_URL!;
-    case radiusTestnet.id:
-      return env === "staging" ? process.env.NEXT_PUBLIC_AA_RADIUS_TESTNET_URL_STAGING! : process.env.NEXT_PUBLIC_AA_RADIUS_TESTNET_URL!;
-    case radiusMainnet.id:
-      return env === "staging" ? process.env.NEXT_PUBLIC_AA_RADIUS_URL_STAGING! : process.env.NEXT_PUBLIC_AA_RADIUS_URL!;
-    default:
-      return `getAaUrl: chain ${chain.name} not supported`;
+  const key = aaChainKey(chain.id);
+  if (!key) {
+    return `getAaUrl: chain ${chain.name} not supported`;
   }
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const staging = env === "staging" ? "?staging" : "";
+  return `${origin}/api/aa/${key}${staging}`;
 }
