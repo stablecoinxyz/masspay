@@ -1,0 +1,11 @@
+# SBC MassPay
+
+> Send payments to multiple recipients with zero gas fees, powered by SBC.
+> Part of The Stable Coin Company (stablecoin.xyz).
+
+Batch up to 200 recipients in one UserOperation on Base.
+The SBC Paymaster sponsors all gas. No native tokens needed.
+
+- Docs: https://docs.stablecoin.xyz/use-cases/mass-payment
+- Website: https://stablecoin.xyz
+- GitHub: https://github.com/stablecoinxyz
