@@ -29,12 +29,13 @@ export default function RootLayout({
 
 export const metadata: Metadata = {
   title: "SBC MassPay",
-  description: "Send mass payouts for free using SBC's gasless MassPay",
+  description: "Send stablecoin payments to multiple recipients with zero gas fees. Batch up to 200 recipients in one transaction.",
   keywords: "SBC, Stable Coin, stablecoins, masspay, payouts, crypto",
+  robots: "max-image-preview:large, max-snippet:-1, max-video-preview:-1",
   twitter: {
     card: "summary",
-    site: "@stablecoinxyz",
-    creator: "@stablecoinxyz",
+    site: "@stablecoin_xyz",
+    creator: "@stablecoin_xyz",
     title: "SBC MassPay",
     description: "Send mass payouts for free using SBC's gasless MassPay",
     images: [

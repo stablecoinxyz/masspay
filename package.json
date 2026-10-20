@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Stable Coin Inc.",
   "engines": {
-    "node": "20.18.1"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
