@@ -4,7 +4,7 @@ import { memo } from "react";
 import { PreviewDialog } from "@/components/PreviewDialog";
 
 export const exampleAddressAmounts = `0xB5f6fECd59dAd3d5bA4Dfe8FcCA6617CE71B99f9, 0.01
-0x589c0e47DE10e0946e2365580B700790AAAbe9f7, 0.001`;
+0x71C7656EC7ab88b098defB751B7401B5f6d8976F, 0.001`;
 const placeholder = `e.g.
 ${exampleAddressAmounts}
 ...
